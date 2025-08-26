@@ -1,0 +1,218 @@
+/* Navbar container */
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 15px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  flex-wrap: wrap;
+}
+
+/* Brand */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.navbar-logo {
+  height: 40px;
+}
+.navbar-brand-text {
+  text-decoration: none;
+  color: #2e8b57;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+/* Search */
+.navbar-search {
+  display: flex;
+  align-items: center;
+  background: #f1f1f1;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 36px;
+  min-width: 200px;
+  max-width: 400px;
+  flex: 1;
+  margin: 0 20px;
+}
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0 15px;
+  background: transparent;
+  font-size: 14px;
+}
+.search-button {
+  background: #2e8b57;
+  color: #fff;
+  border: none;
+  padding: 0 15px;
+  height: 100%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Links */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 16px;
+}
+.nav-link:hover {
+  color: #2e8b57;
+}
+
+/* Auth buttons */
+.auth-button {
+  border: 1px solid #2e8b57;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.auth-button.masuk {
+  color: #2e8b57;
+  background: none;
+}
+.auth-button.masuk:hover {
+  background: #f0fff0;
+}
+.auth-button.daftar {
+  background: #2e8b57;
+  color: #fff;
+  border: none;
+}
+.auth-button.daftar:hover {
+  background: #267d4d;
+}
+
+/* Profile section */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.username {
+  font-size: 15px;
+  font-weight: 500;
+}
+.username-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.username-link:hover {
+  color: #2e8b57;
+}
+.logout-button {
+  background: none;
+  border: none;
+  color: #d33;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Mobile hamburger */
+.hamburger {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 999;
+}
+.mobile-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+.mobile-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+}
+.mobile-username-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.mobile-username-link:hover {
+  color: #2e8b57;
+}
+.mobile-logout {
+  background: none;
+  border: none;
+  color: #d33;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 0;
+  text-align: left;
+}
+.mobile-button {
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  margin: 5px 0;
+}
+.mobile-button.masuk {
+  border: 1px solid #2e8b57;
+  color: #2e8b57;
+  background: none;
+}
+.mobile-button.daftar {
+  background: #2e8b57;
+  color: #fff;
+  border: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar-search,
+  .navbar-links {
+    display: none;
+  }
+  .hamburger {
+    display: block;
+  }
+}
