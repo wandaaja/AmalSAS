@@ -57,6 +57,12 @@ export default function SignInModal({ show, onHide, openSignUp }) {
           width: '100%',
           margin: '0 auto'
         }}>
+          <div className="form-container" style={{
+            backgroundColor: '#09bb6e',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }}>
           <h4 style={{ textAlign: 'center', marginBottom: '1rem' }}>Masuk ke Akun Anda</h4>
 
           {message && (
@@ -105,7 +111,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
                   background: 'none',
                   border: 'none',
                   padding: 0,
-                  color: '#007bff',
+                  color: '#f50303ff',
                   cursor: 'pointer',
                   fontSize: '0.875rem'
                 }}
@@ -130,7 +136,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
                   background: 'none',
                   border: 'none',
                   padding: 0,
-                  color: '#007bff',
+                  color: '#3600f7ff',
                   cursor: 'pointer'
                 }}
               >
@@ -138,6 +144,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
               </button>
             </div>
           </Form>
+          </div>
         </Modal.Body>
       </Modal>
     )}

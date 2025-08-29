@@ -153,6 +153,26 @@ func (h *Handler) CreateUser(c echo.Context) error {
 
 	log.Printf("Request Body: %+v", req)
 
+	// Cek apakah ingin daftar sebagai admin
+	if req.IsAdmin {
+		adminCount, err := h.userRepository.CountAdmins()
+		if err != nil {
+			log.Println("CountAdmins error:", err)
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to check admin count",
+			})
+		}
+
+		if adminCount >= 3 {
+			return c.JSON(http.StatusForbidden, dto.ErrorResult{
+				Code:    http.StatusForbidden,
+				Message: "Admin limit reached (max 3 admins allowed)",
+			})
+		}
+	}
+
+	// Hash password
 	hashedPassword, err := bcrypt.HashingPassword(req.Password)
 	if err != nil {
 		log.Println("Hash error:", err)

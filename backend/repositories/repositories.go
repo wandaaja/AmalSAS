@@ -10,6 +10,8 @@ import (
 // ==================== User Repository ====================
 
 type UserRepository interface {
+	FindAdmin() (*models.User, error)
+	CountAdmins() (int64, error)
 	Create(user *models.User) error
 	GetAll() ([]models.User, error)
 	GetByID(id uint) (*models.User, error)
@@ -25,6 +27,24 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
+}
+
+func (r *userRepository) CountAdmins() (int64, error) {
+	var count int64
+	err := r.db.Model(&models.User{}).Where("is_admin = ?", true).Count(&count).Error
+	return count, err
+}
+
+func (r *userRepository) FindAdmin() (*models.User, error) {
+	var user models.User
+	err := r.db.Where("is_admin = ?", true).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *userRepository) Create(user *models.User) error {
