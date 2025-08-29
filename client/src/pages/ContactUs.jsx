@@ -15,15 +15,15 @@ const ContactUsPage = () => {
         <div style={styles.contactInfo}>
           <ContactItem 
             label="Email" 
-            value="wandaoctavia2710@gmail.com" 
-            link="mailto:wandaoctavia2710@gmail.com"
+            value="amaldisas@gmail.com" 
+            link="mailto:amaldisas@gmail.com"
             icon="envelope"
           />
           
           <ContactItem 
             label="Instagram" 
-            value="@wndaoc.el" 
-            link="https://instagram.com/wndaoc.el"
+            value="@ippsakcs" 
+            link="https://www.instagram.com/ippsakcs/"
             icon="instagram"
           />
           
