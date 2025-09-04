@@ -18,7 +18,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Failed to load .env file")
+		log.Println("No .env file found, using system environment")
 	}
 	fmt.Println("SECRET_KEY from .env:", os.Getenv("SECRET_KEY"))
 	// Initialize Midtrans
