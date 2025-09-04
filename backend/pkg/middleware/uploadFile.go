@@ -1,11 +1,14 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,53 +18,71 @@ type Result struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func UploadFile(next echo.HandlerFunc, formImage string) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		const MAX_UPLOAD_SIZE = 10 << 20 // 10MB
+func UploadFile(formImage string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			const MAX_UPLOAD_SIZE = 10 << 20 // 10MB
 
-		// Limit size
-		c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, MAX_UPLOAD_SIZE)
+			// Batasi ukuran upload
+			c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, MAX_UPLOAD_SIZE)
 
-		err := c.Request().ParseMultipartForm(MAX_UPLOAD_SIZE)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, Result{
-				Code:    http.StatusBadRequest,
-				Message: "File too large",
+			err := c.Request().ParseMultipartForm(MAX_UPLOAD_SIZE)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, Result{
+					Code:    http.StatusBadRequest,
+					Message: "File too large",
+				})
+			}
+
+			file, fileHeader, err := c.Request().FormFile(formImage)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, Result{
+					Code:    http.StatusBadRequest,
+					Message: "Error retrieving the file",
+				})
+			}
+			defer file.Close()
+
+			// Ambil konfigurasi Cloudinary dari environment variables
+			cloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
+			apiKey := os.Getenv("CLOUDINARY_API_KEY")
+			apiSecret := os.Getenv("CLOUDINARY_API_SECRET")
+
+			// Validasi konfigurasi
+			if cloudName == "" || apiKey == "" || apiSecret == "" {
+				return c.JSON(http.StatusInternalServerError, Result{
+					Code:    http.StatusInternalServerError,
+					Message: "Cloudinary configuration missing",
+				})
+			}
+
+			// Inisialisasi Cloudinary
+			cld, err := cloudinary.NewFromParams(cloudName, apiKey, apiSecret)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, Result{
+					Code:    http.StatusInternalServerError,
+					Message: "Failed to initialize cloudinary",
+				})
+			}
+
+			// Buat public ID unik untuk file
+			publicID := fmt.Sprintf("uploads/%d-%s", time.Now().UnixNano(), fileHeader.Filename)
+
+			// Upload ke Cloudinary
+			uploadResult, err := cld.Upload.Upload(context.Background(), file, uploader.UploadParams{
+				PublicID: publicID,
 			})
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, Result{
+					Code:    http.StatusInternalServerError,
+					Message: "Failed to upload file to cloudinary",
+				})
+			}
+
+			// Simpan URL hasil upload ke context agar handler bisa akses
+			c.Set("dataFile", uploadResult.SecureURL)
+
+			return next(c)
 		}
-
-		file, _, err := c.Request().FormFile(formImage)
-		if err != nil {
-			fmt.Println("FormFile error:", err)
-			return c.JSON(http.StatusBadRequest, Result{
-				Code:    http.StatusBadRequest,
-				Message: "Error retrieving the file",
-			})
-		}
-		defer file.Close()
-
-		tempFile, err := os.CreateTemp("uploads", "image-*.png")
-		if err != nil {
-			fmt.Println("Temp file error:", err)
-			return c.JSON(http.StatusInternalServerError, Result{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to create temp file",
-			})
-		}
-		defer tempFile.Close()
-
-		_, err = io.Copy(tempFile, file)
-		if err != nil {
-			fmt.Println("Copy error:", err)
-			return c.JSON(http.StatusInternalServerError, Result{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to save file",
-			})
-		}
-
-		filename := tempFile.Name()[8:]
-		c.Set("dataFile", filename)
-
-		return next(c)
 	}
 }

@@ -11,7 +11,7 @@ const dummyCampaigns = [
     end: "2025-07-01T00:00:00Z",
     cpocket: "BCA 12345678 a.n AmalSAS",
     status: "Active",
-    photo: "https://via.placeholder.com/600x300?text=Jumat+Berkah",
+    photo: "https://share.google/images/1w9bgb7I0tTY3Ae8A",
     total_collected: 2500000,
     user_id: 1,
     user_name: "Admin",
@@ -74,11 +74,19 @@ export default function ContentData() {
           setTotalDonasi(data.total_collected);
           setTotalTransaksi(data.total_transactions);
         } else {
+         console.log("Using dummy data");
           setCampaigns(dummyCampaigns);
+          setTotalCampaign(dummyCampaigns.length);
+          setTotalDonasi(dummyCampaigns.reduce((sum, c) => sum + c.total_collected, 0));
+          setTotalTransaksi(dummyCampaigns.length * 10); // dummy transactions
         }
       } catch (error) {
-        console.error("Gagal mengambil data campaign:", error.message);
+        console.error("Gagal mengambil data campaign:", error);
+        console.log("Using dummy data due to error");
         setCampaigns(dummyCampaigns);
+        setTotalCampaign(dummyCampaigns.length);
+        setTotalDonasi(dummyCampaigns.reduce((sum, c) => sum + c.total_collected, 0));
+        setTotalTransaksi(dummyCampaigns.length * 10);
       }
     };
 

@@ -5,11 +5,12 @@
   transform: translate(-50%, -50%);
   z-index: 1050;
   margin: 0;
+  background-color: #fff;
 }
 
 .modal-header {
-  border-bottom: none;
-  padding: 1.5rem 1.5rem 0;
+  border-bottom: circle;
+  padding: 2rem 2rem 0;
 }
 
 .modal-title {

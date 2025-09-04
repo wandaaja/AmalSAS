@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import SAS from "../assests/icons/sas.png";
+import SAS from "../assests/icons/LogoBaru.png";
 import SignInModal from "./SignIn";
 import SignUpModal from "./SignUp";
 import { UserContext } from "../context/userContext";
@@ -8,7 +8,13 @@ import { setAuthToken } from "../config/api";
 import { API } from "../config/api";
 
 
-const staticPages = [
+const navbarPages = [
+  {
+    id: 'home',
+    title: 'Home',
+    content: 'Home page of AmalSAS.id',
+    path: '/'
+  },
   {
     id: 'vision-mission',
     title: 'Vision & Mission',
@@ -18,10 +24,35 @@ const staticPages = [
   {
     id: 'about-us',
     title: 'About Us',
-    content: 'AmalSAS.id is a non-profit...',
+    content: 'AmalSAS.id is a non-profit organization...',
     path: '/about-us'
+  },
+  {
+    id: 'history',
+    title: 'History',
+    content: 'Donation history and records',
+    path: '/history'
+  },
+  {
+    id: 'profile',
+    title: 'Profile',
+    content: 'User profile and account settings',
+    path: '/profile'
+  },
+  {
+    id: 'dashboard',
+    title: 'Dashboard',
+    content: 'Admin dashboard for managing campaigns',
+    path: '/admin/dashboard'
+  },
+  {
+    id: 'add-campaign',
+    title: 'Add Campaign',
+    content: 'Create new donation campaign',
+    path: '/admin/campaigns/add'
   }
 ];
+
 
 export default function Navbar() {
   const [activeModal, setActiveModal] = useState(null); // 'signin' | 'signup' | null
@@ -57,16 +88,148 @@ export default function Navbar() {
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    const foundPages = staticPages.filter(p =>
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.content.toLowerCase().includes(searchQuery.toLowerCase())
+    const foundPages = navbarPages.filter(page =>
+      page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      page.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      page.path.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const keywordResults = [];
+    const query = searchQuery.toLowerCase();
+
+    if (query.includes('masuk') || query.includes('login') || query.includes('signin')) {
+      keywordResults.push({
+        id: 'signin',
+        title: 'Sign In / Masuk',
+        content: 'Login to your account',
+        type: 'action',
+      icon: '🔐'
+      });
+    }
+    
+    if (query.includes('daftar') || query.includes('register') || query.includes('signup')) {
+      keywordResults.push({
+        id: 'signup',
+        title: 'Sign Up / Daftar',
+        content: 'Create new account',
+        type: 'action',
+      icon: '📝'
+      });
+    }
+    
+    if (query.includes('logout') || query.includes('keluar')) {
+      keywordResults.push({
+        id: 'logout',
+        title: 'Logout',
+        content: 'Sign out from your account',
+        type: 'action',
+      icon: '🚪'
+      });
+    }
+
+    if (query.includes('home') || query.includes('beranda') || query.includes('utama')) {
+    keywordResults.push({
+      id: 'home',
+      title: 'Home / Beranda',
+      content: 'Kembali ke halaman utama',
+      type: 'navigation',
+      path: '/',
+      icon: '🏠'
+    });
+  }
+
+  if (query.includes('profil') || query.includes('profile') || query.includes('akun')) {
+    keywordResults.push({
+      id: 'profile',
+      title: 'Profile / Profil',
+      content: 'Kelola informasi akun Anda',
+      type: 'navigation',
+      path: '/profile',
+      icon: '👤'
+    });
+  }
+
+  if (query.includes('history') || query.includes('riwayat') || query.includes('donasi')) {
+    keywordResults.push({
+      id: 'history',
+      title: 'History / Riwayat',
+      content: 'Lihat riwayat donasi Anda',
+      type: 'navigation',
+      path: '/history',
+      icon: '📊'
+    });
+  }
+
+  if (query.includes('visi') || query.includes('misi') || query.includes('vision') || query.includes('mission')) {
+    keywordResults.push({
+      id: 'vision-mission',
+      title: 'Visi & Misi',
+      content: 'Pelajari visi dan misi organisasi kami',
+      type: 'navigation',
+      path: '/vision-mission',
+      icon: '🎯'
+    });
+  }
+
+  if (query.includes('tentang') || query.includes('about') || query.includes('kami')) {
+    keywordResults.push({
+      id: 'about-us',
+      title: 'Tentang Kami / About Us',
+      content: 'Ketahui lebih lanjut tentang AmalSAS.id',
+      type: 'navigation',
+      path: '/about-us',
+      icon: 'ℹ️'
+    });
+  }
+
+  if (query.includes('kontak') || query.includes('contact') || query.includes('hubungi')) {
+    keywordResults.push({
+      id: 'contact-us',
+      title: 'Kontak / Contact Us',
+      content: 'Hubungi kami untuk informasi lebih lanjut',
+      type: 'navigation',
+      path: '/contact-us',
+      icon: '📞'
+    });
+  }
+
+  // Keyword untuk Admin Features
+  if (query.includes('admin') || query.includes('dashboard') || query.includes('panel')) {
+    keywordResults.push({
+      id: 'dashboard',
+      title: 'Admin Dashboard',
+      content: 'Panel administrasi untuk mengelola kampanye',
+      type: 'navigation',
+      path: '/admin/dashboard',
+      icon: '⚙️',
+      adminOnly: true
+    });
+  }
+
+  if (query.includes('tambah') || query.includes('add') || query.includes('buat') || query.includes('kampanye')) {
+    keywordResults.push({
+      id: 'add-campaign',
+      title: 'Tambah Kampanye / Add Campaign',
+      content: 'Buat kampanye donasi baru',
+      type: 'navigation',
+      path: '/admin/campaigns/add',
+      icon: '➕',
+      adminOnly: true
+    });
+  }
+
+  // Filter keyword results berdasarkan role user
+  const filteredKeywords = keywordResults.filter(keyword => {
+    if (keyword.adminOnly && !isAdmin) return false;
+    return true;
+  });
 
     navigate('/search-results', {
       state: {
         query: searchQuery,
         campaigns: foundCampaigns,
-        pages: foundPages
+        pages: foundPages,
+        keywords: filteredKeywords
       }
     });
 

@@ -42,7 +42,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	api.GET("/check-auth", middleware.Auth(handler.CheckAuth))
 
 	// PATCH image
-	api.PATCH("/change-image", middleware.Auth(middleware.UploadFile(handler.ChangeProfileImage, "image")))
+	api.PATCH("/change-image", middleware.Auth(middleware.UploadFile("photo")(handler.ChangeProfileImage)))
 
 	api.POST("/verify-password", func(c echo.Context) error {
 		var req struct {
@@ -78,13 +78,17 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	// Campaign routes
 	campaignRoutes := api.Group("/campaigns")
 	{
-		campaignRoutes.POST("/add", middleware.Auth(handler.CreateCampaign))
+		// Pasang middleware Auth dan UploadFile untuk upload foto saat create campaign
+		campaignRoutes.POST("/add", middleware.Auth(middleware.UploadFile("photo")(handler.CreateCampaign)))
 		campaignRoutes.GET("", handler.GetAllCampaigns)
 		campaignRoutes.GET("/filter", handler.GetCampaignsByFilters)
 		campaignRoutes.GET("/:id", handler.GetCampaignByID)
-		campaignRoutes.PUT("edit/:id", handler.UpdateCampaign)
+		// Update campaign tanpa upload foto (jika perlu upload foto, gunakan route upload-photo)
+		campaignRoutes.PUT("/edit/:id", handler.UpdateCampaign)
 		campaignRoutes.DELETE("/:id", handler.DeleteCampaign)
 		campaignRoutes.GET("/:id/donations", handler.GetDonationsByCampaign)
+		// Pasang middleware Auth dan UploadFile untuk upload foto campaign
+		campaignRoutes.POST("/:id/upload-photo", middleware.Auth(middleware.UploadFile("photo")(handler.UploadCampaignPhoto)))
 	}
 
 	// Donation routes

@@ -15,8 +15,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     phone: "",
     address: "",
     email: "",
-    password: "",
-    isAdmin: false
+    password: ""
   });
 
   const formRef = useRef(null);
@@ -34,7 +33,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       const payload = {
         ...form,
         phone: form.phone.startsWith('+') ? form.phone.replace(/\s+/g, '') : `+${form.phone.replace(/\s+/g, '')}`,
-        isAdmin: false
+        is_admin: false
       };
       const response = await API.post("/signup", payload);
       return response.data;
@@ -89,7 +88,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       </Modal.Header>
       
       <Modal.Body className="modal-body">
-        <div className="form-container">
         {message && (
           <Alert 
             variant={message.type === 'success' ? 'success' : 'danger'}
@@ -167,28 +165,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
             <Form.Control.Feedback type="invalid">
               3-20 karakter alfanumerik saja
             </Form.Control.Feedback>
-          </Form.Group>
-
-          {/* Toggle Admin */}
-          <Form.Group className="form-group mt-2">
-            <Form.Check
-              type="switch"
-              id="isAdmin"
-              label="Daftar sebagai Admin"
-              checked={form.isAdmin}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  isAdmin: e.target.checked,
-                }))
-              }
-            />
-            {form.isAdmin && (
-              <Alert variant="warning" className="mt-2 p-2">
-                ⚠️ Admin dibatasi hanya <b>3 orang</b>.  
-                Pastikan Anda benar-benar mendaftar sebagai admin.
-              </Alert>
-            )}
           </Form.Group>
 
           <Form.Group className="form-group">
@@ -298,7 +274,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
               Masuk disini
             </button>
           </p>
-        </div>
         </div>
       </Modal.Body>
     </Modal>

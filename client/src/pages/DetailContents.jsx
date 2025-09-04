@@ -31,15 +31,41 @@ const DetailCampaign = () => {
   const [campaign, setCampaign] = useState(null);
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const isAdmin = state.isLogin && state.user?.is_admin;
 
+  // MIDTRANS CLIENT KEY - langsung di set di sini
+  const MIDTRANS_CLIENT_KEY = "SB-Mid-client-cSoG5C-yKiBSkgTj";
+ 
+
   useEffect(() => {
+    // Cek jika script sudah ada
+    if (document.getElementById('midtrans-script')) return;
+
     const script = document.createElement("script");
     script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-    script.setAttribute("data-client-key", process.env.REACT_APP_MIDTRANS_CLIENT_KEY);
+    // script.src = "https://app.midtrans.com/snap/snap.js"; // Untuk production
+    script.setAttribute("data-client-key", MIDTRANS_CLIENT_KEY);
+    script.id = "midtrans-script";
+    script.async = true;
+    
+    script.onload = () => {
+      console.log("Midtrans Snap.js loaded successfully");
+    };
+    
+    script.onerror = () => {
+      console.error("Failed to load Midtrans Snap.js");
+    };
+
     document.body.appendChild(script);
-    return () => document.body.removeChild(script);
-  }, []);
+    
+    return () => {
+      const existingScript = document.getElementById('midtrans-script');
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+      }
+    };
+  }, [MIDTRANS_CLIENT_KEY]);
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -56,13 +82,15 @@ const DetailCampaign = () => {
   }, [id]);
 
   const handleDonate = async () => {
+    setError("");
+    
     if (!state.isLogin) {
       setShowLoginModal(true);
       return;
     }
 
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      alert("Masukkan jumlah donasi yang valid.");
+    if (!amount || isNaN(amount) || Number(amount) < 1000) {
+      setError("Masukkan jumlah donasi minimal Rp 1.000");
       return;
     }
 
@@ -70,21 +98,69 @@ const DetailCampaign = () => {
     try {
       const res = await API.post("/donations", {
         amount: Number(amount),
-        status: "pending",
         user_id: state.user.id,
         campaign_id: Number(id),
       });
 
-      const token = res.data.data.payment_url;
-      window.snap.pay(token, {
-        onSuccess: () => navigate("/donation-success"),
-        onPending: () => navigate("/donation-pending"),
-        onError: (err) => console.error(err),
-        onClose: () => alert("Transaksi dibatalkan."),
-      });
+      console.log("Donation response:", res.data);
+
+      // Pastikan struktur response sesuai dengan backend Anda
+      if (res.data && res.data.data) {
+        const responseData = res.data.data;
+        
+        // Cek jika backend mengembalikan payment_url langsung
+        if (responseData.payment_url) {
+          // Redirect langsung ke payment URL
+          window.location.href = responseData.payment_url;
+        } 
+        // Cek jika backend mengembalikan token untuk Snap
+        else if (responseData.token) {
+          if (window.snap && typeof window.snap.pay === 'function') {
+            window.snap.pay(responseData.token, {
+              onSuccess: (result) => {
+                console.log('Payment success:', result);
+                navigate("/donation-success", { 
+                  state: { 
+                    donation: responseData.donation,
+                    transactionId: result.transaction_id 
+                  }
+                });
+              },
+              onPending: (result) => {
+                console.log('Payment pending:', result);
+                navigate("/donation-pending", { 
+                  state: { transactionId: result.transaction_id } 
+                });
+              },
+              onError: (error) => {
+                console.error('Payment error:', error);
+                setError("Terjadi kesalahan saat pembayaran. Silakan coba lagi.");
+              },
+              onClose: () => {
+                setError("Transaksi dibatalkan. Anda dapat mencoba lagi kapan saja.");
+              }
+            });
+          } else {
+            setError("Payment gateway tidak tersedia. Silakan refresh halaman.");
+          }
+        }
+        // Jika backend mengembalikan data dalam format yang berbeda
+        else if (responseData.data && responseData.data.payment_url) {
+          window.location.href = responseData.data.payment_url;
+        }
+        else {
+          setError("Response dari server tidak valid. Silakan coba lagi.");
+        }
+      } else {
+        setError("Terjadi kesalahan pada response server.");
+      }
+
     } catch (err) {
       console.error("Gagal memproses donasi:", err);
-      alert("Terjadi kesalahan saat memproses donasi");
+      const errorMessage = err.response?.data?.message || 
+                          err.message || 
+                          "Terjadi kesalahan saat memproses donasi";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +196,6 @@ const DetailCampaign = () => {
       alignItems: 'flex-start',
       padding: '40px 5%',
       gap: '40px',
-      backgroundColor: '#f9f9f9',
       minHeight: '100vh'
     }}>
       <div style={{ flex: '1 1 600px', maxWidth: '600px' }}>
@@ -231,18 +306,35 @@ const DetailCampaign = () => {
           ⏳ {remainingDays} hari lagi
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div style={{
+            color: '#d32f2f',
+            backgroundColor: '#ffebee',
+            padding: '12px',
+            borderRadius: '6px',
+            marginBottom: '15px',
+            fontSize: '14px'
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
         {state.isLogin ? (
           <>
             <input
               type="number"
-              placeholder="Masukkan nominal donasi"
+              placeholder="Masukkan nominal donasi (min Rp 1.000)"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                setError("");
+              }}
               style={{
                 width: '100%',
                 padding: '12px',
                 marginBottom: '15px',
-                border: '1px solid #ddd',
+                border: error ? '1px solid #d32f2f' : '1px solid #ddd',
                 borderRadius: '6px',
                 fontSize: '16px',
                 transition: 'border 0.3s ease'
@@ -261,7 +353,7 @@ const DetailCampaign = () => {
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '16px',
-                cursor: 'pointer',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 width: '100%',
                 marginBottom: '20px',
                 transition: 'background-color 0.3s ease'
@@ -338,24 +430,25 @@ const DetailCampaign = () => {
           </div>
         )}
       </div>
+
       <div style={{
-  width: '100%',
-  marginTop: '40px',
-  backgroundColor: '#fff',
-  padding: '30px',
-  borderRadius: '12px',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-  lineHeight: '1.6',
-  color: '#333',
-  maxWidth: '800px'
-}}>
-  <h4 style={{ marginBottom: '15px', fontWeight: '600' }}>Tentang Campaign</h4>
-  {campaign.description ? (
-    <div dangerouslySetInnerHTML={{ __html: campaign.description }} />
-  ) : (
-    <p>Deskripsi belum tersedia untuk campaign ini.</p>
-  )}
-</div>
+        width: '100%',
+        marginTop: '40px',
+        backgroundColor: '#fff',
+        padding: '30px',
+        borderRadius: '12px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        lineHeight: '1.6',
+        color: '#333',
+        maxWidth: '800px'
+      }}>
+        <h4 style={{ marginBottom: '15px', fontWeight: '600' }}>Tentang Campaign</h4>
+        {campaign.description ? (
+          <div dangerouslySetInnerHTML={{ __html: campaign.description }} />
+        ) : (
+          <p>Deskripsi belum tersedia untuk campaign ini.</p>
+        )}
+      </div>
 
       <SignInModal 
         show={showLoginModal}

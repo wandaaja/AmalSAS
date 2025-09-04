@@ -68,6 +68,7 @@ export default function EditProfile({ show, onHide }) {
 
   return (
     <>
+    <div className="edit-profile-modal">
       <Modal 
         show={show} 
         onHide={onHide} 
@@ -183,6 +184,7 @@ export default function EditProfile({ show, onHide }) {
         show={showChangeImage} 
         onHide={() => setShowChangeImage(false)} 
       />
+    </div>
     </>
   );
 }

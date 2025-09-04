@@ -184,6 +184,7 @@ type DonationRepository interface {
 	CountPaid() (int64, error)
 	SumPaidAmount() (float64, error)
 	CountByCampaign(campaignID uint) (int64, error)
+	GetByOrderID(orderID string) (*models.Donation, error)
 }
 
 type donationRepository struct {
@@ -258,4 +259,16 @@ func (r *donationRepository) CountByCampaign(campaignID uint) (int64, error) {
 		Where("campaign_id = ?", campaignID).
 		Count(&count).Error
 	return count, err
+}
+
+func (r *donationRepository) GetByOrderID(orderID string) (*models.Donation, error) {
+	var donation models.Donation
+	err := r.db.Where("order_id = ?", orderID).First(&donation).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &donation, nil
 }

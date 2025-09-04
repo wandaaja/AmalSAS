@@ -9,6 +9,7 @@ import Footer from "./components/Foot";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute"; 
 import Loading from "./components/Loading";
+import SearchResults from './components/SearchResult';
 
 // Pages
 import HomeAdmin from "./pages/HomeAdmin";
@@ -26,7 +27,7 @@ import { UserContext } from "./context/userContext";
 import { API, setAuthToken } from "./config/api";
 
 // Assets
-import BackgroundImage from "./assests/icons/web amalsas.jpg";
+import BackgroundImage from "./assests/icons/BG.png";
 
 
 
@@ -100,6 +101,7 @@ function AppContent() {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/vision-mission" element={<VisionMissionPage />} />
           <Route path="/contact-us" element={<ContactUsPage />} />
+          <Route path="/search-results" element={<SearchResults />} />
 
           {/* Authenticated User Routes */}
           <Route element={<PrivateRoute />}>

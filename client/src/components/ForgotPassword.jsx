@@ -63,6 +63,7 @@ export default function ForgotPasswordModal({ show, onHide, openSignIn, zIndex }
         left: '50%',
         transform: 'translate(-50%, -50%)',
         zIndex: 1060,
+        backgroundColor: '#fff'
       }}
     >
       <Modal.Header closeButton>

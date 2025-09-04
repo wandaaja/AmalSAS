@@ -69,6 +69,8 @@ type Donation struct {
 	Status     string         `json:"status" form:"status"`
 	UserID     int            `json:"user_id"`
 	User       User           `gorm:"foreignKey:UserID" json:"user"`
+	OrderID    string         `json:"order_id" gorm:"type:varchar(100);uniqueIndex"`
+	PaymentURL string         `json:"payment_url" gorm:"type:text"`
 	CampaignID int            `json:"campaign_id"`
 	Campaign   Campaign       `gorm:"foreignKey:CampaignID" json:"campaign"`
 	CreatedAt  time.Time      `json:"created_at"`

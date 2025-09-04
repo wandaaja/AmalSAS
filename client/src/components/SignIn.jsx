@@ -50,20 +50,18 @@ export default function SignInModal({ show, onHide, openSignUp }) {
           zIndex: 1050,
         }}
       >
-        <Modal.Body style={{
-          padding: '1.5rem',
-          borderRadius: '8px',
-          maxWidth: '400px',
-          width: '100%',
-          margin: '0 auto'
-        }}>
-          <div className="form-container" style={{
-            backgroundColor: '#09bb6e',
+        <Modal.Header closeButton>
+          <Modal.Title>Masuk ke Akun Anda</Modal.Title>
+        </Modal.Header>
+
+          <Modal.Body style={{
             padding: '1.5rem',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }}>
-          <h4 style={{ textAlign: 'center', marginBottom: '1rem' }}>Masuk ke Akun Anda</h4>
+            borderRadius: '8px',
+            maxWidth: '400px',
+            width: '100%',
+          margin: '0 auto',
+          backgroundColor: '#fff'
+        }}>
 
           {message && (
             <Alert variant="danger" style={{ marginBottom: '1rem' }}>
@@ -111,7 +109,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
                   background: 'none',
                   border: 'none',
                   padding: 0,
-                  color: '#f50303ff',
+                  color: '#007bff',
                   cursor: 'pointer',
                   fontSize: '0.875rem'
                 }}
@@ -136,7 +134,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
                   background: 'none',
                   border: 'none',
                   padding: 0,
-                  color: '#3600f7ff',
+                  color: '#007bff',
                   cursor: 'pointer'
                 }}
               >
@@ -144,8 +142,8 @@ export default function SignInModal({ show, onHide, openSignUp }) {
               </button>
             </div>
           </Form>
-          </div>
         </Modal.Body>
+        
       </Modal>
     )}
 

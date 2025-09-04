@@ -6,7 +6,8 @@ import (
 	"os"
 
 	"zakat/database"
-	"zakat/pkg/mysql"
+	"zakat/pkg/midtrans"
+	"zakat/pkg/postgres"
 	"zakat/routes"
 
 	"github.com/joho/godotenv"
@@ -20,9 +21,12 @@ func main() {
 		log.Fatal("Failed to load .env file")
 	}
 	fmt.Println("SECRET_KEY from .env:", os.Getenv("SECRET_KEY"))
+	// Initialize Midtrans
+	fmt.Println("Initializing Midtrans...")
+	midtrans.Init()
 
 	// Initialize database connection
-	mysql.DatabaseInit()
+	postgres.DatabaseInit()
 
 	// Run database migration
 	database.RunMigration()
@@ -43,13 +47,17 @@ func main() {
 	e.Static("/uploads", "uploads")
 
 	// Initialize routes using existing echo instance
-	routes.InitRouter(e, mysql.DB)
+	routes.InitRouter(e, postgres.DB)
 
 	// Get port from .env or fallback
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5050"
 	}
+
+	fmt.Println("🚀 Server running at http://localhost:" + port)
+	fmt.Println("🔗 Midtrans Environment: Sandbox")
+	fmt.Println("💳 Payment Notification: http://localhost:" + port + "/api/v1/donations/notifications")
 
 	fmt.Println("🚀 Server running at http://localhost:" + port)
 	e.Logger.Fatal(e.Start(":" + port))

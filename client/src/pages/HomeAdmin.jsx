@@ -7,7 +7,7 @@ import { formatRupiah } from "../utils/currencyFormat";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
-import { FaBook, FaHandsHelping } from "react-icons/fa";
+import { FaGraduationCap,FaHouseDamage, FaHandsHelping,FaHeartbeat,FaLeaf,FaPrayingHands,FaPalette,FaQuestionCircle } from "react-icons/fa";
 
 // Dummy fallback data
 const dummyCampaigns = [
@@ -141,8 +141,14 @@ function HomeAdmin() {
                 <td style={{ textAlign: "center" }}>{index + 1}</td>
                 <td>{campaign.title}</td>
                 <td>
-                  {campaign.category === "pendidikan" && <FaBook style={{ marginRight: 6, color: "#0d6efd" }} />}
-                  {campaign.category === "bencana" && <FaHandsHelping style={{ marginRight: 6, color: "#dc3545" }} />}
+                  {campaign.category === "pendidikan" && <FaGraduationCap style={{ marginRight: 6, color: "#0d6efd" }} />}
+                  {campaign.category === "bencana" && <FaHouseDamage style={{ marginRight: 6, color: "#dc3545" }} />}
+                  {campaign.category === "kesehatan" && <FaHeartbeat style={{ marginRight: 6, color: "#28a745" }} />}
+                  {campaign.category === "lingkungan" && <FaLeaf style={{ marginRight: 6, color: "#20c997" }} />}
+                  {campaign.category === "sosial" && <FaHandsHelping style={{ marginRight: 6, color: "#17a2b8" }} />}
+                  {campaign.category === "agama" && <FaPrayingHands style={{ marginRight: 6, color: "#6f42c1" }} />}
+                  {campaign.category === "kesenian" && <FaPalette style={{ marginRight: 6, color: "#fd7e14" }} />}
+                  {campaign.category === "lainnya" && <FaQuestionCircle style={{ marginRight: 6, color: "#5e6d7aff" }} />}
                   {campaign.category}
                 </td>
                 <td style={{ textAlign: "center" }}>{formatRupiah(campaign.target_total)}</td>

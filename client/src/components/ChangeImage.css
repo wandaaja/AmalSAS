@@ -1,3 +1,8 @@
+.change-image-modal{
+  border-bottom: 5px solid #e9ecef;
+  background-color: #f3f7f4;
+  margin: 0 1.5rem;
+}
 .change-image-modal {
   position: fixed;
   top: 50%;

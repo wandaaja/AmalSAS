@@ -3,11 +3,11 @@ package database
 import (
 	"fmt"
 	"zakat/models"
-	"zakat/pkg/mysql"
+	"zakat/pkg/postgres"
 )
 
 func RunMigration() {
-	err := mysql.DB.AutoMigrate(
+	err := postgres.DB.AutoMigrate(
 		&models.User{},
 		&models.Campaign{},
 		&models.Donation{},

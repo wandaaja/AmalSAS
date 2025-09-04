@@ -1,6 +1,7 @@
 package midtrans
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/midtrans/midtrans-go"
@@ -17,6 +18,10 @@ func Init() {
 	// Ambil key dari environment variable
 	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
 	clientKey := os.Getenv("MIDTRANS_CLIENT_KEY")
+
+	fmt.Println("🔑 Midtrans Server Key:", serverKey[:10]+"...")
+	fmt.Println("🔑 Midtrans Client Key:", clientKey[:10]+"...")
+	fmt.Println("🌍 Midtrans Environment: Sandbox")
 
 	// Setup Midtrans config global
 	midtrans.ServerKey = serverKey

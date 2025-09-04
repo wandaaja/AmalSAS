@@ -14,10 +14,11 @@ type DonationResponse struct {
 	Amount     float64   `json:"amount"`
 	Date       time.Time `json:"date"`
 	Status     string    `json:"status"`
+	OrderID    string    `json:"order_id,omitempty"`
+	PaymentURL string    `json:"payment_url,omitempty"`
 	UserID     int       `json:"user_id"`
 	UserName   string    `json:"user_name"`
 	CampaignID int       `json:"campaign_id"`
 	Campaign   string    `json:"campaign"`
 	CreatedAt  time.Time `json:"created_at"`
-	PaymentURL string    `json:"payment_url,omitempty"`
 }
