@@ -121,7 +121,7 @@ func main() {
 	// Get port from .env or fallback
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5050"
+		port = "8080"
 	}
 
 	fmt.Println("🚀 Server running on port:", port)
