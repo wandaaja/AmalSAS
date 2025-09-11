@@ -38,7 +38,8 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
+		AllowOrigins: []string{"https://amal-sas.vercel.app",
+			"http://localhost:3000"},
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.PATCH, echo.DELETE},
 		AllowHeaders: []string{"X-Requested-With", "Content-Type", "Authorization"},
 	}))
