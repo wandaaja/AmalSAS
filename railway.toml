@@ -9,11 +9,11 @@ restartPolicyMaxRetries = 10
 
 [healthcheck]
 path = "/health"
-port = 5050  # Pastikan sama dengan di main.go
+port = 5050
 timeout = 30
 interval = 15
 initialDelay = 5
 
 [[services]]
 name = "web"
-httpPort = 5050  # Pastikan sama dengan di main.go
+httpPort = 5050
