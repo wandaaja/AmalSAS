@@ -5,6 +5,7 @@ const IMAGE_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || "https://amalsas-
 
 export const API = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
 });
 
 export const setAuthToken = (token) => {

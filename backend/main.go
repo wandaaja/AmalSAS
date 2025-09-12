@@ -22,7 +22,6 @@ func getCORSOrigins() []string {
 		frontendURL = "https://amal-sas.vercel.app"
 	}
 
-	// Allow both the frontend URL and any Railway preview URLs
 	return []string{
 		frontendURL,
 		"https://amal-sas.vercel.app",
@@ -57,34 +56,23 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// Enhanced CORS configuration
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     getCORSOrigins(),
-		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.PATCH, echo.DELETE, echo.OPTIONS},
-		AllowHeaders:     []string{"*"},
-		AllowCredentials: true,
-		MaxAge:           86400,
-	}))
-
-	// Additional CORS handling for preflight requests
+	// CORS Middleware - HANYA INI YANG DIGUNAKAN
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Set CORS headers
 			origin := c.Request().Header.Get("Origin")
-			if origin != "" {
-				allowedOrigins := getCORSOrigins()
-				for _, allowedOrigin := range allowedOrigins {
-					if origin == allowedOrigin || allowedOrigin == "*" {
-						c.Response().Header().Set("Access-Control-Allow-Origin", origin)
-						break
-					}
+			allowedOrigins := getCORSOrigins()
+
+			// Check if origin is allowed
+			for _, allowedOrigin := range allowedOrigins {
+				if origin == allowedOrigin {
+					c.Response().Header().Set("Access-Control-Allow-Origin", origin)
+					c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+					c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
+					c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
+					c.Response().Header().Set("Access-Control-Max-Age", "86400")
+					break
 				}
 			}
-
-			c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-			c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
-			c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
-			c.Response().Header().Set("Access-Control-Max-Age", "86400")
 
 			// Handle preflight requests
 			if c.Request().Method == "OPTIONS" {
