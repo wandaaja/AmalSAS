@@ -56,31 +56,17 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// CORS Middleware - VERSION SUPER AGGRESSIVE
+	// Ganti CORS middleware dengan ini saja:
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			origin := c.Request().Header.Get("Origin")
-			allowedOrigins := getCORSOrigins()
+			c.Response().Header().Set("Access-Control-Allow-Origin", "https://amal-sas.vercel.app")
+			c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			c.Response().Header().Set("Access-Control-Allow-Headers", "*")
+			c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
 
-			// Always set CORS headers for all origins during preflight
 			if c.Request().Method == "OPTIONS" {
-				c.Response().Header().Set("Access-Control-Allow-Origin", "https://amal-sas.vercel.app")
-				c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-				c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, Access-Control-Request-Headers, Access-Control-Request-Method")
-				c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
-				c.Response().Header().Set("Access-Control-Max-Age", "86400")
 				return c.NoContent(200)
 			}
-
-			// For actual requests, check origin
-			for _, allowedOrigin := range allowedOrigins {
-				if origin == allowedOrigin {
-					c.Response().Header().Set("Access-Control-Allow-Origin", origin)
-					c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
-					break
-				}
-			}
-
 			return next(c)
 		}
 	})
