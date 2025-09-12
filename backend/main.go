@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -18,10 +19,15 @@ import (
 
 func main() {
 	err := godotenv.Load()
+	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		log.SetOutput(io.MultiWriter(os.Stdout, logFile))
+		defer logFile.Close()
+	}
 	if err != nil {
 		log.Println("No .env file found, using system environment")
 	}
-
+	fmt.Println("DATABASE_URL exists:", os.Getenv("DATABASE_URL") != "")
 	fmt.Println("Environment loaded successfully")
 
 	// Initialize Midtrans
