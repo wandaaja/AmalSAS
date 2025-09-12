@@ -74,14 +74,13 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       const payload = {
         ...form,
         phone: formattedPhone,
-        is_admin: userType === 'admin'
+        is_admin: userType === 'admin' // Kirim is_admin di payload
       };
       
       console.log('Sending payload:', payload);
       
-      // Gunakan endpoint yang sesuai
-      const endpoint = userType === 'admin' ? '/users' : '/signup';
-      const response = await API.post(endpoint, payload);
+      // SELALU gunakan endpoint /signup untuk admin dan donatur
+      const response = await API.post("/signup", payload);
       return response.data;
     },
     onSuccess: (data) => {
