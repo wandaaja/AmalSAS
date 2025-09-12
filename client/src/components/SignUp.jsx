@@ -41,7 +41,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       setAdminCount(data.admin_count || 0);
       setCanCreateAdmin(data.can_create_admin !== false);
       
-      // Jika sudah mencapai batas admin, paksa pilihan ke user
       if (!data.can_create_admin && userType === 'admin') {
         setUserType('user');
       }
@@ -71,15 +70,20 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
           : `+${form.phone.replace(/\s+/g, '')}`;
       }
       
+      // PERBAIKAN: Gunakan field name yang sesuai dengan backend (isAdmin bukan is_admin)
       const payload = {
-        ...form,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        username: form.username,
         phone: formattedPhone,
-        is_admin: userType === 'admin' // Kirim is_admin di payload
+        address: form.address,
+        email: form.email,
+        password: form.password,
+        isAdmin: userType === 'admin' // PERBAIKAN: isAdmin (huruf besar A)
       };
       
       console.log('Sending payload:', payload);
       
-      // SELALU gunakan endpoint /signup untuk admin dan donatur
       const response = await API.post("/signup", payload);
       return response.data;
     },
@@ -97,6 +101,8 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     },
     onError: (error) => {
       console.error("Registration error:", error);
+      console.error("Error response:", error.response?.data);
+      
       const errorMessage = error.response?.data?.message || "Registrasi gagal. Silakan coba lagi.";
       
       if (error.response?.status === 403 && errorMessage.includes("admin limit")) {
@@ -125,7 +131,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       return;
     }
 
-    // Validasi tambahan untuk admin registration
     if (userType === 'admin' && !canCreateAdmin) {
       setMessage({
         type: 'error',
