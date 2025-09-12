@@ -1,17 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { API } from "../config/api";
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaHome, FaCrown } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaHome } from "react-icons/fa";
 import './SignUp.css';
 
 export default function SignUpModal({ show, onHide, openSignIn }) {
-  const [message, setMessage] = useState(null);
+const [message, setMessage] = useState(null);
   const [validated, setValidated] = useState(false);
-  const [userType, setUserType] = useState('user'); // 'user' or 'admin'
+  const [userType, setUserType] = useState('user');
   const [adminCount, setAdminCount] = useState(0);
   const [canCreateAdmin, setCanCreateAdmin] = useState(true);
-  
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -24,8 +23,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
 
   const formRef = useRef(null);
 
-  // Fetch admin count saat modal dibuka
-  const { data: adminData, isLoading: isLoadingAdminCount } = useQuery({
+  const {data: adminData, isLoading: isLoadingAdminCount} = useQuery({
     queryKey: ['adminCount'],
     queryFn: async () => {
       const response = await API.get("/admin-count");
@@ -35,13 +33,12 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     onSuccess: (data) => {
       setAdminCount(data.admin_count);
       setCanCreateAdmin(data.can_create_admin);
-      
-      // Jika sudah mencapai batas admin, paksa pilihan ke user
+
       if (!data.can_create_admin && userType === 'admin') {
         setUserType('user');
       }
     }
-  });
+  })
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,35 +48,27 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     }));
   };
 
-  const handleUserTypeChange = (type) => {
-    if (type === 'admin' && !canCreateAdmin) return;
-    setUserType(type);
-  };
-
   const { mutate, isLoading } = useMutation({
     mutationFn: async () => {
+
       let formattedPhone = form.phone;
     
-      if (form.phone && form.phone.trim() !== '') {
-        formattedPhone = form.phone.startsWith('+') 
-          ? form.phone.replace(/\s+/g, '') 
-          : `+${form.phone.replace(/\s+/g, '')}`;
-      }
-      
+    if (form.phone && form.phone.trim() !== '') {
+      formattedPhone = form.phone.startsWith('+') 
+        ? form.phone.replace(/\s+/g, '') 
+        : `+${form.phone.replace(/\s+/g, '')}`;
+    }
       const payload = {
         ...form,
         phone: formattedPhone,
         is_admin: userType === 'admin'
       };
-      
       console.log('Sending payload:', payload);
-      
-      // Gunakan endpoint yang sesuai
       const endpoint = userType === 'admin' ? '/users' : '/signup';
-      const response = await API.post(endpoint, payload);
+      const response = await API.post("/signup", payload);
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       setMessage({
         type: 'success',
         text: userType === 'admin' 
@@ -119,8 +108,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       setValidated(true);
       return;
     }
-
-    // Validasi tambahan untuk admin registration
     if (userType === 'admin' && !canCreateAdmin) {
       setMessage({
         type: 'error',
@@ -153,7 +140,8 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
   return (
     <Modal 
       show={show} 
-      onHide={onHide}
+      onHide={() => {
+        onHide();}} 
       centered
       backdrop="static"
       size="md"
@@ -161,19 +149,12 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     >
       <Modal.Header closeButton className="modal-header">
         <Modal.Title className="w-100 text-center">
-          <h3 className="modal-title">Buat Akun Baru</h3>
-          <p className="modal-subtitle">Bergabung dengan komunitas kami</p>
+          <h3 className="modal-title">Buat Akun Donatur</h3>
+          <p className="modal-subtitle">Bergabung dengan komunitas kami untuk membuat perubahan</p>
         </Modal.Title>
       </Modal.Header>
       
       <Modal.Body className="modal-body">
-        {isLoadingAdminCount && (
-          <div className="text-center mb-3">
-            <Spinner animation="border" size="sm" />
-            <span className="ms-2">Memeriksa ketersediaan admin...</span>
-          </div>
-        )}
-
         {message && (
           <Alert 
             variant={message.type === 'success' ? 'success' : 'danger'}
@@ -182,42 +163,6 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
             {message.text}
           </Alert>
         )}
-
-        {/* User Type Selection */}
-        <div className="user-type-selection mb-4">
-          <label className="form-label">Daftar sebagai:</label>
-          <div className="d-flex gap-2">
-            <Button
-              variant={userType === 'user' ? 'primary' : 'outline-primary'}
-              className="flex-fill user-type-btn"
-              onClick={() => handleUserTypeChange('user')}
-            >
-              <FaUser className="me-2" />
-              Donatur
-            </Button>
-            <Button
-              variant={userType === 'admin' ? 'warning' : 'outline-warning'}
-              className="flex-fill user-type-btn"
-              onClick={() => handleUserTypeChange('admin')}
-              disabled={!canCreateAdmin}
-              title={!canCreateAdmin ? 'Batas maksimal admin telah tercapai' : ''}
-            >
-              <FaCrown className="me-2" />
-              Admin
-              {!canCreateAdmin && (
-                <span className="ms-1 badge bg-danger">Full</span>
-              )}
-            </Button>
-          </div>
-          {userType === 'admin' && (
-            <div className="admin-info mt-2">
-              <small className="text-muted">
-                <FaCrown className="me-1" />
-                Status admin: {adminCount}/3 terisi
-              </small>
-            </div>
-          )}
-        </div>
 
         <Form
           noValidate
@@ -267,6 +212,37 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
               </Form.Control.Feedback>
             </Form.Group>
           </div>
+          <Form.Group className="form-group">
+  <Form.Label>
+    <FaCrown className="icon" />
+    Peran (Role)
+  </Form.Label>
+  {canCreateAdmin ? (
+    <>
+      <Form.Select
+        required
+        name="role"
+        value={userType}
+        onChange={(e) => handleUserTypeChange(e.target.value)}
+      >
+        <option value="user">Donatur</option>
+        <option value="admin">Admin</option>
+      </Form.Select>
+      {userType === 'admin' && (
+        <Form.Text className="text-muted">
+          Status admin: {adminCount}/3 terisi
+        </Form.Text>
+      )}
+    </>
+  ) : (
+    <div className="alert alert-warning py-2 mb-0">
+      <small>
+        <FaCrown className="me-1" />
+        Batas maksimal admin (3) telah tercapai. Otomatis terdaftar sebagai Donatur.
+      </small>
+    </div>
+  )}
+</Form.Group>
 
           <Form.Group className="form-group">
             <Form.Label>
@@ -321,12 +297,13 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
               onChange={handleChange}
               pattern="^\+[1-9]\d{1,14}$"
               placeholder="+6281234567890"
-              onBlur={(e) => {
-                const value = e.target.value.trim();
-                if (value && !value.startsWith('+')) {
-                  setForm(prev => ({ ...prev, phone: `+${value}` }));
-                }
-              }}
+               onBlur={(e) => {
+      // Auto-format on blur
+      const value = e.target.value.trim();
+      if (value && !value.startsWith('+')) {
+        setForm(prev => ({ ...prev, phone: `+${value}` }));
+      }
+    }}
             />
             <Form.Text className="form-text">
               Contoh: +6281234567890
@@ -377,19 +354,14 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
 
           <Button 
             type="submit"
-            variant={userType === 'admin' ? 'warning' : 'primary'}
+            variant="primary"
             className="submit-button"
-            disabled={isLoading || (userType === 'admin' && !canCreateAdmin)}
+            disabled={isLoading}
           >
             {isLoading && (
               <Spinner animation="border" size="sm" className="me-2" />
             )}
-            {isLoading 
-              ? "Memproses..." 
-              : userType === 'admin' 
-                ? "Daftar sebagai Admin" 
-                : "Daftar sebagai Donatur"
-            }
+            {isLoading ? "Memproses..." : "Daftar Sekarang"}
           </Button>
         </Form>
 
