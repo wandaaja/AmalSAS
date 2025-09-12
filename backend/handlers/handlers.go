@@ -138,6 +138,22 @@ func (h *Handler) ChangePassword(c echo.Context) error {
 	})
 }
 
+func (h *Handler) GetAdminCount(c echo.Context) error {
+	count, err := h.userRepository.CountAdmins()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to get admin count",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"admin_count":      count,
+		"max_admins":       3,
+		"can_create_admin": count < 3,
+	})
+}
+
 // ==================== User Handlers ====================
 
 func (h *Handler) CreateUser(c echo.Context) error {

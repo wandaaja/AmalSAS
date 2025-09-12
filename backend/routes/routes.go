@@ -61,6 +61,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 
 	api.POST("/signup", handler.CreateUser)
 	api.POST("/signin", handler.SignIn)
+	api.GET("/admin-count", handler.GetAdminCount)
 
 	// User routes
 	userRoutes := api.Group("/users")

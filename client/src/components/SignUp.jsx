@@ -1,13 +1,17 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { API } from "../config/api";
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaHome } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaHome, FaCrown } from "react-icons/fa";
 import './SignUp.css';
 
 export default function SignUpModal({ show, onHide, openSignIn }) {
   const [message, setMessage] = useState(null);
   const [validated, setValidated] = useState(false);
+  const [userType, setUserType] = useState('user'); // 'user' or 'admin'
+  const [adminCount, setAdminCount] = useState(0);
+  const [canCreateAdmin, setCanCreateAdmin] = useState(true);
+  
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -20,6 +24,25 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
 
   const formRef = useRef(null);
 
+  // Fetch admin count saat modal dibuka
+  const { data: adminData, isLoading: isLoadingAdminCount } = useQuery({
+    queryKey: ['adminCount'],
+    queryFn: async () => {
+      const response = await API.get("/admin-count");
+      return response.data;
+    },
+    enabled: show,
+    onSuccess: (data) => {
+      setAdminCount(data.admin_count);
+      setCanCreateAdmin(data.can_create_admin);
+      
+      // Jika sudah mencapai batas admin, paksa pilihan ke user
+      if (!data.can_create_admin && userType === 'admin') {
+        setUserType('user');
+      }
+    }
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({
@@ -28,29 +51,40 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     }));
   };
 
+  const handleUserTypeChange = (type) => {
+    if (type === 'admin' && !canCreateAdmin) return;
+    setUserType(type);
+  };
+
   const { mutate, isLoading } = useMutation({
     mutationFn: async () => {
-
       let formattedPhone = form.phone;
     
-    if (form.phone && form.phone.trim() !== '') {
-      formattedPhone = form.phone.startsWith('+') 
-        ? form.phone.replace(/\s+/g, '') 
-        : `+${form.phone.replace(/\s+/g, '')}`;
-    }
+      if (form.phone && form.phone.trim() !== '') {
+        formattedPhone = form.phone.startsWith('+') 
+          ? form.phone.replace(/\s+/g, '') 
+          : `+${form.phone.replace(/\s+/g, '')}`;
+      }
+      
       const payload = {
         ...form,
         phone: formattedPhone,
-        is_admin: false
+        is_admin: userType === 'admin'
       };
+      
       console.log('Sending payload:', payload);
-      const response = await API.post("/signup", payload);
+      
+      // Gunakan endpoint yang sesuai
+      const endpoint = userType === 'admin' ? '/users' : '/signup';
+      const response = await API.post(endpoint, payload);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setMessage({
         type: 'success',
-        text: 'Registrasi berhasil! Mengarahkan ke halaman login...'
+        text: userType === 'admin' 
+          ? 'Registrasi admin berhasil! Mengarahkan ke halaman login...' 
+          : 'Registrasi berhasil! Mengarahkan ke halaman login...'
       });
       setTimeout(() => {
         onHide();
@@ -58,10 +92,21 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       }, 2000);
     },
     onError: (error) => {
-      setMessage({
-        type: 'error',
-        text: error.response?.data?.message || "Registrasi gagal. Silakan coba lagi."
-      });
+      const errorMessage = error.response?.data?.message || "Registrasi gagal. Silakan coba lagi.";
+      
+      if (error.response?.status === 403 && errorMessage.includes("admin limit")) {
+        setMessage({
+          type: 'error',
+          text: 'Batas maksimal admin (3) telah tercapai. Silakan daftar sebagai user biasa.'
+        });
+        setUserType('user');
+        setCanCreateAdmin(false);
+      } else {
+        setMessage({
+          type: 'error',
+          text: errorMessage
+        });
+      }
     }
   });
 
@@ -75,15 +120,40 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       return;
     }
 
+    // Validasi tambahan untuk admin registration
+    if (userType === 'admin' && !canCreateAdmin) {
+      setMessage({
+        type: 'error',
+        text: 'Tidak dapat membuat admin baru. Batas maksimal telah tercapai.'
+      });
+      return;
+    }
+
     setValidated(true);
     mutate();
   };
 
+  useEffect(() => {
+    if (show) {
+      setMessage(null);
+      setValidated(false);
+      setUserType('user');
+      setForm({
+        first_name: "",
+        last_name: "",
+        username: "",
+        phone: "",
+        address: "",
+        email: "",
+        password: ""
+      });
+    }
+  }, [show]);
+
   return (
     <Modal 
       show={show} 
-      onHide={() => {
-        onHide();}} 
+      onHide={onHide}
       centered
       backdrop="static"
       size="md"
@@ -91,12 +161,19 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     >
       <Modal.Header closeButton className="modal-header">
         <Modal.Title className="w-100 text-center">
-          <h3 className="modal-title">Buat Akun Donatur</h3>
-          <p className="modal-subtitle">Bergabung dengan komunitas kami untuk membuat perubahan</p>
+          <h3 className="modal-title">Buat Akun Baru</h3>
+          <p className="modal-subtitle">Bergabung dengan komunitas kami</p>
         </Modal.Title>
       </Modal.Header>
       
       <Modal.Body className="modal-body">
+        {isLoadingAdminCount && (
+          <div className="text-center mb-3">
+            <Spinner animation="border" size="sm" />
+            <span className="ms-2">Memeriksa ketersediaan admin...</span>
+          </div>
+        )}
+
         {message && (
           <Alert 
             variant={message.type === 'success' ? 'success' : 'danger'}
@@ -105,6 +182,42 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
             {message.text}
           </Alert>
         )}
+
+        {/* User Type Selection */}
+        <div className="user-type-selection mb-4">
+          <label className="form-label">Daftar sebagai:</label>
+          <div className="d-flex gap-2">
+            <Button
+              variant={userType === 'user' ? 'primary' : 'outline-primary'}
+              className="flex-fill user-type-btn"
+              onClick={() => handleUserTypeChange('user')}
+            >
+              <FaUser className="me-2" />
+              Donatur
+            </Button>
+            <Button
+              variant={userType === 'admin' ? 'warning' : 'outline-warning'}
+              className="flex-fill user-type-btn"
+              onClick={() => handleUserTypeChange('admin')}
+              disabled={!canCreateAdmin}
+              title={!canCreateAdmin ? 'Batas maksimal admin telah tercapai' : ''}
+            >
+              <FaCrown className="me-2" />
+              Admin
+              {!canCreateAdmin && (
+                <span className="ms-1 badge bg-danger">Full</span>
+              )}
+            </Button>
+          </div>
+          {userType === 'admin' && (
+            <div className="admin-info mt-2">
+              <small className="text-muted">
+                <FaCrown className="me-1" />
+                Status admin: {adminCount}/3 terisi
+              </small>
+            </div>
+          )}
+        </div>
 
         <Form
           noValidate
@@ -208,13 +321,12 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
               onChange={handleChange}
               pattern="^\+[1-9]\d{1,14}$"
               placeholder="+6281234567890"
-               onBlur={(e) => {
-      // Auto-format on blur
-      const value = e.target.value.trim();
-      if (value && !value.startsWith('+')) {
-        setForm(prev => ({ ...prev, phone: `+${value}` }));
-      }
-    }}
+              onBlur={(e) => {
+                const value = e.target.value.trim();
+                if (value && !value.startsWith('+')) {
+                  setForm(prev => ({ ...prev, phone: `+${value}` }));
+                }
+              }}
             />
             <Form.Text className="form-text">
               Contoh: +6281234567890
@@ -265,14 +377,19 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
 
           <Button 
             type="submit"
-            variant="primary"
+            variant={userType === 'admin' ? 'warning' : 'primary'}
             className="submit-button"
-            disabled={isLoading}
+            disabled={isLoading || (userType === 'admin' && !canCreateAdmin)}
           >
             {isLoading && (
               <Spinner animation="border" size="sm" className="me-2" />
             )}
-            {isLoading ? "Memproses..." : "Daftar Sekarang"}
+            {isLoading 
+              ? "Memproses..." 
+              : userType === 'admin' 
+                ? "Daftar sebagai Admin" 
+                : "Daftar sebagai Donatur"
+            }
           </Button>
         </Form>
 
