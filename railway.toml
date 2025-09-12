@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend && go build -o main ."
+buildCommand = "cd backend && go mod download && go build -o main ."
 
 [deploy]
 startCommand = "cd backend && ./main"
@@ -9,7 +9,11 @@ restartPolicyMaxRetries = 10
 
 [healthcheck]
 path = "/health"
-port = 8080
+port = 5050  # Pastikan sama dengan di main.go
 timeout = 30
 interval = 15
 initialDelay = 5
+
+[[services]]
+name = "web"
+httpPort = 5050  # Pastikan sama dengan di main.go
