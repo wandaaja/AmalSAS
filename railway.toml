@@ -1,11 +1,15 @@
 [build]
 builder = "nixpacks"
-buildCommand = "go build -o main ."
+buildCommand = "go build -o main ./backend"
 ignoreDockerfile = true
 
-[deploy]
-startCommand = "./main" 
+[deploy] 
+startCommand = "./main"
 
 [healthcheck]
 path = "/health"
 port = 5050
+
+# Force nixpacks to ignore Dockerfile completely
+[nixpacks]
+disableDockerfile = true
