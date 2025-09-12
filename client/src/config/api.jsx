@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://amalsas-production.up.railway.app";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://amalsas-production.up.railway.app/api/v1";
 const IMAGE_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || "https://amalsas-production.up.railway.app";
 
 export const API = axios.create({

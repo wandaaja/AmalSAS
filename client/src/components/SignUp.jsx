@@ -30,11 +30,20 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async () => {
+
+      let formattedPhone = form.phone;
+    
+    if (form.phone && form.phone.trim() !== '') {
+      formattedPhone = form.phone.startsWith('+') 
+        ? form.phone.replace(/\s+/g, '') 
+        : `+${form.phone.replace(/\s+/g, '')}`;
+    }
       const payload = {
         ...form,
-        phone: form.phone.startsWith('+') ? form.phone.replace(/\s+/g, '') : `+${form.phone.replace(/\s+/g, '')}`,
+        phone: formattedPhone,
         is_admin: false
       };
+      console.log('Sending payload:', payload);
       const response = await API.post("/signup", payload);
       return response.data;
     },
@@ -199,12 +208,19 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
               onChange={handleChange}
               pattern="^\+[1-9]\d{1,14}$"
               placeholder="+6281234567890"
+               onBlur={(e) => {
+      // Auto-format on blur
+      const value = e.target.value.trim();
+      if (value && !value.startsWith('+')) {
+        setForm(prev => ({ ...prev, phone: `+${value}` }));
+      }
+    }}
             />
             <Form.Text className="form-text">
               Contoh: +6281234567890
             </Form.Text>
             <Form.Control.Feedback type="invalid">
-              Harap masukkan nomor telepon yang valid
+              Harap masukkan nomor telepon yang valid dengan kode negara
             </Form.Control.Feedback>
           </Form.Group>
 
