@@ -1,0 +1,22 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd backend && go mod download && go build -o main ."
+nixpacksVersion = "1.38.0"
+
+[deploy]
+startCommand = "cd backend && ./main"
+
+[healthcheck]
+path = "/health"
+port = 5050
+timeout = 30
+interval = 15
+initialDelay = 5
+
+[[services]]
+name = "web"
+httpPort = 5050
+
+# Explicitly tell Nixpacks this is a Go app
+[nixpacks]
+provider = "go"
