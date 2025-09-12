@@ -2,3 +2,10 @@
 builder = "nixpacks"
 buildCommand = "cd backend && go build -o main ."
 ignoreDockerfile = true
+
+[deploy]
+startCommand = "cd backend && ./main"  # ← TAMBAH INI
+
+[healthcheck]
+path = "/health"
+port = 5050
