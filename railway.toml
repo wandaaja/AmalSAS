@@ -12,4 +12,4 @@ port = 5050
 
 # Force nixpacks to ignore Dockerfile completely
 [nixpacks]
-disableDockerfile = true
+disableDockerfile = true  #
