@@ -44,13 +44,11 @@ func main() {
 	// CORS MIDDLEWARE - VERSION SANGAT SIMPLE DAN PASTI
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// SETIAP RESPONSE DAPATKAN CORS HEADERS
 			c.Response().Header().Set("Access-Control-Allow-Origin", "https://amal-sas.vercel.app")
 			c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
 			c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
 
-			// TANGANI PREFLIGHT REQUEST
 			if c.Request().Method == "OPTIONS" {
 				return c.NoContent(200)
 			}
