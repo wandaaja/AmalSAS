@@ -1,16 +1,17 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { API } from "../config/api";
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaHome } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaHome, FaCrown } from "react-icons/fa";
 import './SignUp.css';
 
 export default function SignUpModal({ show, onHide, openSignIn }) {
-const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState(null);
   const [validated, setValidated] = useState(false);
   const [userType, setUserType] = useState('user');
   const [adminCount, setAdminCount] = useState(0);
   const [canCreateAdmin, setCanCreateAdmin] = useState(true);
+  
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -23,22 +24,29 @@ const [message, setMessage] = useState(null);
 
   const formRef = useRef(null);
 
-  const {data: adminData, isLoading: isLoadingAdminCount} = useQuery({
+  // Fetch admin count saat modal dibuka
+  const { data: adminData, isLoading: isLoadingAdminCount } = useQuery({
     queryKey: ['adminCount'],
     queryFn: async () => {
-      const response = await API.get("/admin-count");
-      return response.data;
+      try {
+        const response = await API.get("/admin-count");
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching admin count:", error);
+        return { admin_count: 0, can_create_admin: true };
+      }
     },
     enabled: show,
     onSuccess: (data) => {
-      setAdminCount(data.admin_count);
-      setCanCreateAdmin(data.can_create_admin);
-
+      setAdminCount(data.admin_count || 0);
+      setCanCreateAdmin(data.can_create_admin !== false);
+      
+      // Jika sudah mencapai batas admin, paksa pilihan ke user
       if (!data.can_create_admin && userType === 'admin') {
         setUserType('user');
       }
     }
-  })
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,27 +56,35 @@ const [message, setMessage] = useState(null);
     }));
   };
 
+  const handleUserTypeChange = (type) => {
+    if (type === 'admin' && !canCreateAdmin) return;
+    setUserType(type);
+  };
+
   const { mutate, isLoading } = useMutation({
     mutationFn: async () => {
-
       let formattedPhone = form.phone;
     
-    if (form.phone && form.phone.trim() !== '') {
-      formattedPhone = form.phone.startsWith('+') 
-        ? form.phone.replace(/\s+/g, '') 
-        : `+${form.phone.replace(/\s+/g, '')}`;
-    }
+      if (form.phone && form.phone.trim() !== '') {
+        formattedPhone = form.phone.startsWith('+') 
+          ? form.phone.replace(/\s+/g, '') 
+          : `+${form.phone.replace(/\s+/g, '')}`;
+      }
+      
       const payload = {
         ...form,
         phone: formattedPhone,
         is_admin: userType === 'admin'
       };
+      
       console.log('Sending payload:', payload);
+      
+      // Gunakan endpoint yang sesuai
       const endpoint = userType === 'admin' ? '/users' : '/signup';
-      const response = await API.post("/signup", payload);
+      const response = await API.post(endpoint, payload);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setMessage({
         type: 'success',
         text: userType === 'admin' 
@@ -81,6 +97,7 @@ const [message, setMessage] = useState(null);
       }, 2000);
     },
     onError: (error) => {
+      console.error("Registration error:", error);
       const errorMessage = error.response?.data?.message || "Registrasi gagal. Silakan coba lagi.";
       
       if (error.response?.status === 403 && errorMessage.includes("admin limit")) {
@@ -108,6 +125,8 @@ const [message, setMessage] = useState(null);
       setValidated(true);
       return;
     }
+
+    // Validasi tambahan untuk admin registration
     if (userType === 'admin' && !canCreateAdmin) {
       setMessage({
         type: 'error',
@@ -140,8 +159,7 @@ const [message, setMessage] = useState(null);
   return (
     <Modal 
       show={show} 
-      onHide={() => {
-        onHide();}} 
+      onHide={onHide}
       centered
       backdrop="static"
       size="md"
@@ -149,12 +167,19 @@ const [message, setMessage] = useState(null);
     >
       <Modal.Header closeButton className="modal-header">
         <Modal.Title className="w-100 text-center">
-          <h3 className="modal-title">Buat Akun Donatur</h3>
-          <p className="modal-subtitle">Bergabung dengan komunitas kami untuk membuat perubahan</p>
+          <h3 className="modal-title">Buat Akun Baru</h3>
+          <p className="modal-subtitle">Bergabung dengan komunitas kami</p>
         </Modal.Title>
       </Modal.Header>
       
       <Modal.Body className="modal-body">
+        {isLoadingAdminCount && (
+          <div className="text-center mb-3">
+            <Spinner animation="border" size="sm" />
+            <span className="ms-2">Memeriksa ketersediaan admin...</span>
+          </div>
+        )}
+
         {message && (
           <Alert 
             variant={message.type === 'success' ? 'success' : 'danger'}
@@ -171,6 +196,39 @@ const [message, setMessage] = useState(null);
           ref={formRef}
           className="signup-form"
         >
+          {/* Role Selection */}
+          <Form.Group className="form-group">
+            <Form.Label>
+              <FaCrown className="icon" />
+              Peran (Role)
+            </Form.Label>
+            {canCreateAdmin ? (
+              <>
+                <Form.Select
+                  required
+                  name="role"
+                  value={userType}
+                  onChange={(e) => handleUserTypeChange(e.target.value)}
+                >
+                  <option value="user">Donatur</option>
+                  <option value="admin">Admin</option>
+                </Form.Select>
+                {userType === 'admin' && (
+                  <Form.Text className="text-muted">
+                    Status admin: {adminCount}/3 terisi
+                  </Form.Text>
+                )}
+              </>
+            ) : (
+              <div className="alert alert-warning py-2 mb-0">
+                <small>
+                  <FaCrown className="me-1" />
+                  Batas maksimal admin (3) telah tercapai. Otomatis terdaftar sebagai Donatur.
+                </small>
+              </div>
+            )}
+          </Form.Group>
+
           <div className="name-fields">
             <Form.Group className="form-group">
               <Form.Label>
@@ -212,37 +270,6 @@ const [message, setMessage] = useState(null);
               </Form.Control.Feedback>
             </Form.Group>
           </div>
-          <Form.Group className="form-group">
-  <Form.Label>
-    <FaCrown className="icon" />
-    Peran (Role)
-  </Form.Label>
-  {canCreateAdmin ? (
-    <>
-      <Form.Select
-        required
-        name="role"
-        value={userType}
-        onChange={(e) => handleUserTypeChange(e.target.value)}
-      >
-        <option value="user">Donatur</option>
-        <option value="admin">Admin</option>
-      </Form.Select>
-      {userType === 'admin' && (
-        <Form.Text className="text-muted">
-          Status admin: {adminCount}/3 terisi
-        </Form.Text>
-      )}
-    </>
-  ) : (
-    <div className="alert alert-warning py-2 mb-0">
-      <small>
-        <FaCrown className="me-1" />
-        Batas maksimal admin (3) telah tercapai. Otomatis terdaftar sebagai Donatur.
-      </small>
-    </div>
-  )}
-</Form.Group>
 
           <Form.Group className="form-group">
             <Form.Label>
@@ -257,11 +284,11 @@ const [message, setMessage] = useState(null);
               onChange={handleChange}
               minLength={3}
               maxLength={20}
-              pattern="[a-zA-Z0-9]+"
+              pattern="[a-zA-Z0-9_]+"
               placeholder="johndoe123"
             />
             <Form.Control.Feedback type="invalid">
-              3-20 karakter alfanumerik saja
+              3-20 karakter alfanumerik dan underscore saja
             </Form.Control.Feedback>
           </Form.Group>
 
@@ -297,13 +324,12 @@ const [message, setMessage] = useState(null);
               onChange={handleChange}
               pattern="^\+[1-9]\d{1,14}$"
               placeholder="+6281234567890"
-               onBlur={(e) => {
-      // Auto-format on blur
-      const value = e.target.value.trim();
-      if (value && !value.startsWith('+')) {
-        setForm(prev => ({ ...prev, phone: `+${value}` }));
-      }
-    }}
+              onBlur={(e) => {
+                const value = e.target.value.trim();
+                if (value && !value.startsWith('+')) {
+                  setForm(prev => ({ ...prev, phone: `+${value}` }));
+                }
+              }}
             />
             <Form.Text className="form-text">
               Contoh: +6281234567890
@@ -354,14 +380,19 @@ const [message, setMessage] = useState(null);
 
           <Button 
             type="submit"
-            variant="primary"
+            variant={userType === 'admin' ? 'warning' : 'primary'}
             className="submit-button"
-            disabled={isLoading}
+            disabled={isLoading || (userType === 'admin' && !canCreateAdmin)}
           >
             {isLoading && (
               <Spinner animation="border" size="sm" className="me-2" />
             )}
-            {isLoading ? "Memproses..." : "Daftar Sekarang"}
+            {isLoading 
+              ? "Memproses..." 
+              : userType === 'admin' 
+                ? "Daftar sebagai Admin" 
+                : "Daftar sebagai Donatur"
+            }
           </Button>
         </Form>
 
