@@ -89,6 +89,8 @@ func main() {
 
 	fmt.Println("🚀 Server running on port:", port)
 	fmt.Println("💳 Payment Notification: http://localhost:" + port + "/api/v1/donations/notifications")
+	fmt.Println("Environment PORT:", os.Getenv("PORT"))
+	fmt.Println("Using port:", port)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
