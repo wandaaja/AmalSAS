@@ -56,27 +56,29 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// CORS Middleware - HANYA INI YANG DIGUNAKAN
+	// CORS Middleware - VERSION SUPER AGGRESSIVE
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			origin := c.Request().Header.Get("Origin")
 			allowedOrigins := getCORSOrigins()
 
-			// Check if origin is allowed
+			// Always set CORS headers for all origins during preflight
+			if c.Request().Method == "OPTIONS" {
+				c.Response().Header().Set("Access-Control-Allow-Origin", "https://amal-sas.vercel.app")
+				c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+				c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin, Access-Control-Request-Headers, Access-Control-Request-Method")
+				c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
+				c.Response().Header().Set("Access-Control-Max-Age", "86400")
+				return c.NoContent(200)
+			}
+
+			// For actual requests, check origin
 			for _, allowedOrigin := range allowedOrigins {
 				if origin == allowedOrigin {
 					c.Response().Header().Set("Access-Control-Allow-Origin", origin)
-					c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-					c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
 					c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
-					c.Response().Header().Set("Access-Control-Max-Age", "86400")
 					break
 				}
-			}
-
-			// Handle preflight requests
-			if c.Request().Method == "OPTIONS" {
-				return c.NoContent(200)
 			}
 
 			return next(c)
@@ -88,6 +90,8 @@ func main() {
 
 	// Test endpoint for CORS
 	e.GET("/api/test-cors", func(c echo.Context) error {
+		c.Response().Header().Set("Access-Control-Allow-Origin", "https://amal-sas.vercel.app")
+		c.Response().Header().Set("Access-Control-Allow-Credentials", "true")
 		return c.JSON(200, map[string]interface{}{
 			"message":   "CORS test successful",
 			"origin":    c.Request().Header.Get("Origin"),
@@ -97,6 +101,7 @@ func main() {
 
 	// Health check endpoint
 	e.GET("/health", func(c echo.Context) error {
+		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
 		return c.JSON(200, map[string]string{
 			"status": "OK",
 			"time":   time.Now().Format(time.RFC3339),

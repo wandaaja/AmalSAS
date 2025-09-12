@@ -17,11 +17,8 @@ import (
 
 func InitRouter(e *echo.Echo, db *gorm.DB) {
 
-	// Middleware yang sudah ada di main.go, tidak perlu ditambah lagi
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
-	// ↓↓↓ BARIS INI DIHAPUS - INI PENYEBAB CORS ERROR ↓↓↓
-	// e.Use(echoMiddleware.CORS())
 
 	// Initialize Midtrans
 	midtrans.Init()
