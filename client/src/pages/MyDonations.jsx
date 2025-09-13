@@ -16,7 +16,7 @@ export default function DonationHistory() {
     };
   }, []);
 
-  // Fetch donations for this user
+  // Fetch all donations
   const { data: donations, isLoading, error } = useQuery(
     "donationsCache",
     async () => {
@@ -30,21 +30,48 @@ export default function DonationHistory() {
     }
   );
 
-  // Filter only current user's donations
-  const userDonations = donations?.filter(
-    (donation) => donation.user?.id === state.user.id
-  );
+  // Filter data based on role
+  let displayDonations = [];
+
+  if (state.user.role === "admin") {
+    // Group donations by campaign for admin view
+    // Flatten donations grouped by campaign, or just show all donations sorted by campaign
+    // Here kita tampilkan semua donasi, tapi bisa diurutkan berdasarkan campaign
+    displayDonations = donations?.sort((a, b) => {
+      const titleA = a.campaign?.title?.toLowerCase() || "";
+      const titleB = b.campaign?.title?.toLowerCase() || "";
+      if (titleA < titleB) return -1;
+      if (titleA > titleB) return 1;
+      return 0;
+    });
+  } else {
+    // For donatur, filter donations by user id
+    displayDonations = donations?.filter(
+      (donation) => donation.user?.id === state.user.id
+    );
+  }
 
   // Function to get status badge color
   const getStatusVariant = (status) => {
     if (!status) return "secondary";
-    
+
     const statusLower = status.toLowerCase();
-    if (statusLower.includes("success") || statusLower.includes("completed") || statusLower === "paid") {
+    if (
+      statusLower.includes("success") ||
+      statusLower.includes("completed") ||
+      statusLower === "paid"
+    ) {
       return "success";
-    } else if (statusLower.includes("pending") || statusLower.includes("process")) {
+    } else if (
+      statusLower.includes("pending") ||
+      statusLower.includes("process")
+    ) {
       return "warning";
-    } else if (statusLower.includes("fail") || statusLower.includes("expired") || statusLower.includes("cancel")) {
+    } else if (
+      statusLower.includes("fail") ||
+      statusLower.includes("expired") ||
+      statusLower.includes("cancel")
+    ) {
       return "danger";
     } else {
       return "secondary";
@@ -54,13 +81,24 @@ export default function DonationHistory() {
   // Function to format status text
   const formatStatus = (status) => {
     if (!status) return "Unknown";
-    
+
     const statusLower = status.toLowerCase();
-    if (statusLower.includes("success") || statusLower.includes("completed") || statusLower === "paid") {
+    if (
+      statusLower.includes("success") ||
+      statusLower.includes("completed") ||
+      statusLower === "paid"
+    ) {
       return "Success";
-    } else if (statusLower.includes("pending") || statusLower.includes("process")) {
+    } else if (
+      statusLower.includes("pending") ||
+      statusLower.includes("process")
+    ) {
       return "Pending";
-    } else if (statusLower.includes("fail") || statusLower.includes("expired") || statusLower.includes("cancel")) {
+    } else if (
+      statusLower.includes("fail") ||
+      statusLower.includes("expired") ||
+      statusLower.includes("cancel")
+    ) {
       return "Failed";
     } else {
       return status;
@@ -69,9 +107,12 @@ export default function DonationHistory() {
 
   return (
     <>
-
       <Container className="my-5">
-        <h3 className="fw-bold mb-4">My Donation History</h3>
+        <h3 className="fw-bold mb-4">
+          {state.user.role === "admin"
+            ? "Donation History by Campaign"
+            : "My Donation History"}
+        </h3>
 
         {error && (
           <div className="alert alert-danger">
@@ -83,6 +124,7 @@ export default function DonationHistory() {
           <thead>
             <tr>
               <th>No</th>
+              {state.user.role === "admin" && <th>User</th>}
               <th>Campaign</th>
               <th>Amount</th>
               <th>Date</th>
@@ -93,15 +135,18 @@ export default function DonationHistory() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan={state.user.role === "admin" ? "7" : "6"} className="text-center">
                   <div className="spinner-border spinner-border-sm me-2" />
                   Loading donations...
                 </td>
               </tr>
-            ) : userDonations?.length > 0 ? (
-              userDonations.map((donation, index) => (
+            ) : displayDonations?.length > 0 ? (
+              displayDonations.map((donation, index) => (
                 <tr key={donation.id}>
                   <td>{index + 1}</td>
+                  {state.user.role === "admin" && (
+                    <td>{donation.user?.name || "N/A"}</td>
+                  )}
                   <td>{donation.campaign?.title || "N/A"}</td>
                   <td>{convert(donation.amount)}</td>
                   <td>
@@ -119,13 +164,18 @@ export default function DonationHistory() {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center text-muted py-4">
+                <td colSpan={state.user.role === "admin" ? "7" : "6"} className="text-center text-muted py-4">
                   <div>
-                    <i className="fas fa-donate fa-2x mb-3" style={{ opacity: 0.5 }} />
+                    <i
+                      className="fas fa-donate fa-2x mb-3"
+                      style={{ opacity: 0.5 }}
+                    />
                   </div>
                   No donation history available.
                   <div className="small mt-2">
-                    Your donations will appear here once you make a contribution.
+                    {state.user.role === "admin"
+                      ? "No donations found for any campaign."
+                      : "Your donations will appear here once you make a contribution."}
                   </div>
                 </td>
               </tr>
