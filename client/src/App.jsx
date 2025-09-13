@@ -21,6 +21,7 @@ import ContactUsPage from "./pages/ContactUs";
 import AddCampaign from "./pages/AddCampaign";
 import EditCampaign from "./pages/EditCampaign";
 import NotFound from "./pages/NotFound";
+import History from "./pages/MyDonations"
 
 // Context & API
 import { UserContext } from "./context/userContext";
@@ -107,7 +108,7 @@ function AppContent() {
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/donations" element={<div>Donations Page</div>} />
-            <Route path="/history" element={<div>History Page</div>} />
+            <Route path="/history" element={History} />
           </Route>
 
           {/* Admin Only Routes */}
