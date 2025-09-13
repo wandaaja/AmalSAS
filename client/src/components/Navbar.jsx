@@ -6,7 +6,7 @@ import SignUpModal from "./SignUp";
 import { UserContext } from "../context/userContext";
 import { setAuthToken } from "../config/api";
 import { API } from "../config/api";
-import "./NavbarStyle.css";
+import "./Navbar.css"
 
 const navbarPages = [
   {
