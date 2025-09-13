@@ -1,10 +1,11 @@
 import React, { useContext, useEffect } from "react";
 import { Container, Table, Badge } from "react-bootstrap";
-import dayjs from "dayjs"; // ✅ ganti react-moment dengan dayjs
+import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../config/api";
 import { UserContext } from "../context/userContext";
 import { convert } from "rupiah-format";
+import "./MyDonations.css";
 
 export default function MyDonations() {
   const [state] = useContext(UserContext);
@@ -16,7 +17,6 @@ export default function MyDonations() {
     };
   }, []);
 
-  // ✅ Fix useQuery (React Query v4 style)
   const {
     data: donations,
     isLoading,
@@ -83,8 +83,8 @@ export default function MyDonations() {
   };
 
   return (
-    <Container className="my-5">
-      <h3 className="fw-bold mb-4">My Donation History</h3>
+    <Container className="my-5 donation-container">
+      <h3 className="donation-title">My Donation History</h3>
 
       {error && (
         <div className="alert alert-danger">
@@ -92,7 +92,7 @@ export default function MyDonations() {
         </div>
       )}
 
-      <Table striped bordered hover responsive>
+      <Table striped bordered hover responsive className="donation-table">
         <thead>
           <tr>
             <th>No</th>
