@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { Container, Table, Badge } from "react-bootstrap";
 import Moment from "react-moment";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { API } from "../config/api";
 import { UserContext } from "../context/userContext";
 import { convert } from "rupiah-format";
