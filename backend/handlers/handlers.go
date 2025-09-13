@@ -1064,13 +1064,108 @@ func (h *Handler) GetDonationByID(c echo.Context) error {
 	})
 }
 
-func (h *Handler) GetAllDonations(c echo.Context) error {
-	donations, err := h.donationRepository.GetAll()
+// GetAllDonationsAdmin - Get all donations for admin
+func (h *Handler) GetAllDonationsAdmin(c echo.Context) error {
+	// Check if user is admin
+	userID := c.Get("userLogin").(int)
+	user, err := h.userRepository.GetByID(uint(userID))
+	if err != nil || user == nil || !user.IsAdmin {
+		return c.JSON(http.StatusForbidden, dto.ErrorResult{
+			Code:    http.StatusForbidden,
+			Message: "Access denied. Admin only.",
+		})
+	}
+
+	donations, err := h.donationRepository.GetAllWithDetails()
 	if err != nil {
-		log.Println("GetAllDonations GetAll error:", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
-			Message: "Failed to get donations",
+			Message: "Failed to fetch donations",
+		})
+	}
+
+	return c.JSON(http.StatusOK, dto.SuccessResult{
+		Code: http.StatusOK,
+		Data: donations,
+	})
+}
+
+// GetDonationsByUser - Get donations by user ID
+func (h *Handler) GetDonationsByUser(c echo.Context) error {
+	userIDStr := c.Param("userId")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid user ID",
+		})
+	}
+
+	// Check if requesting own data or admin
+	currentUserID := c.Get("userLogin").(int)
+	currentUser, err := h.userRepository.GetByID(uint(currentUserID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to verify user",
+		})
+	}
+
+	// Allow if admin or requesting own data
+	if !currentUser.IsAdmin && currentUserID != userID {
+		return c.JSON(http.StatusForbidden, dto.ErrorResult{
+			Code:    http.StatusForbidden,
+			Message: "Access denied",
+		})
+	}
+
+	donations, err := h.donationRepository.GetByUser(uint(userID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to fetch user donations",
+		})
+	}
+
+	return c.JSON(http.StatusOK, dto.SuccessResult{
+		Code: http.StatusOK,
+		Data: donations,
+	})
+}
+
+// GetAllDonations - Get all donations (bisa dengan filter)
+func (h *Handler) GetAllDonations(c echo.Context) error {
+	// Jika ada query parameter campaign_id, filter by campaign
+	campaignID := c.QueryParam("campaign_id")
+	if campaignID != "" {
+		campaignIDUint, err := strconv.ParseUint(campaignID, 10, 32)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResult{
+				Code:    http.StatusBadRequest,
+				Message: "Invalid campaign ID",
+			})
+		}
+
+		donations, err := h.donationRepository.GetByCampaign(uint(campaignIDUint))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to fetch campaign donations",
+			})
+		}
+
+		return c.JSON(http.StatusOK, dto.SuccessResult{
+			Code: http.StatusOK,
+			Data: donations,
+		})
+	}
+
+	// Jika tidak ada filter, kembalikan semua donations
+	donations, err := h.donationRepository.GetAll()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to fetch donations",
 		})
 	}
 

@@ -185,6 +185,8 @@ type DonationRepository interface {
 	SumPaidAmount() (float64, error)
 	CountByCampaign(campaignID uint) (int64, error)
 	GetByOrderID(orderID string) (*models.Donation, error)
+	GetAllWithDetails() ([]models.Donation, error)
+	GetByUser(userID uint) ([]models.Donation, error)
 }
 
 type donationRepository struct {
@@ -222,9 +224,35 @@ func (r *donationRepository) Delete(id uint) error {
 	return r.db.Delete(&models.Donation{}, id).Error
 }
 
+func (r *donationRepository) GetAllWithDetails() ([]models.Donation, error) {
+	var donations []models.Donation
+	err := r.db.
+		Preload("User").
+		Preload("Campaign").
+		Order("created_at DESC").
+		Find(&donations).Error
+	return donations, err
+}
+
+func (r *donationRepository) GetByUser(userID uint) ([]models.Donation, error) {
+	var donations []models.Donation
+	err := r.db.
+		Where("user_id = ?", userID).
+		Preload("User").
+		Preload("Campaign").
+		Order("created_at DESC").
+		Find(&donations).Error
+	return donations, err
+}
+
 func (r *donationRepository) GetByCampaign(campaignID uint) ([]models.Donation, error) {
 	var donations []models.Donation
-	err := r.db.Where("campaign_id = ?", campaignID).Preload("User").Find(&donations).Error
+	err := r.db.
+		Where("campaign_id = ?", campaignID).
+		Preload("User").
+		Preload("Campaign").
+		Order("created_at DESC").
+		Find(&donations).Error
 	return donations, err
 }
 

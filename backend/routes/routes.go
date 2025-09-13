@@ -92,6 +92,8 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	{
 		donationRoutes.POST("", handler.CreateDonation)
 		donationRoutes.GET("", handler.GetAllDonations)
+		donationRoutes.GET("/admin/all", middleware.Auth(handler.GetAllDonationsAdmin))
+		donationRoutes.GET("/by-user/:userId", middleware.Auth(handler.GetDonationsByUser))
 		donationRoutes.GET("/:id", handler.GetDonationByID)
 		donationRoutes.PUT("/:id", handler.UpdateDonation)
 		donationRoutes.DELETE("/:id", handler.DeleteDonation)

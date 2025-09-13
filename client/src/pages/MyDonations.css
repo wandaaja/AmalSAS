@@ -1,128 +1,79 @@
-/* ===== Container ===== */
 .donation-container {
-  background: linear-gradient(135deg, #f8fbff 0%, #eef3f9 100%);
-  padding: 2.5rem;
-  border-radius: 20px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
-  animation: fadeIn 0.6s ease-in-out;
+  min-height: 80vh;
 }
 
-/* Fade in effect */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== Title ===== */
 .donation-title {
-  font-weight: 800;
-  font-size: 1.8rem;
-  margin-bottom: 1.8rem;
-  position: relative;
-  display: inline-block;
+  color: #2e8b57;
+  font-weight: 700;
+  margin-bottom: 2rem;
 }
 
-.donation-title::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 50%;
-  height: 4px;
-  border-radius: 2px;
-}
-
-/* ===== Table ===== */
 .donation-table {
-  border-radius: 16px;
+  background: white;
+  border-radius: 12px;
   overflow: hidden;
-  background: #ffffff;
-  border: none;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.donation-table thead {
-  background: linear-gradient(90deg, #0d6efd, #2563eb);
-  color: #fff;
+.donation-table thead th {
+  background-color: #2e8b57;
+  color: white;
+  border: none;
+  padding: 1rem;
   font-weight: 600;
-  font-size: 0.95rem;
 }
 
-.donation-table th,
-.donation-table td {
-  vertical-align: middle !important;
-  text-align: center;
-  padding: 14px 12px;
-  border: none;
+.donation-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-color: #f0f0f0;
 }
 
-.donation-table tbody tr {
-  transition: all 0.25s ease;
+.donation-row:hover {
+  background-color: #f8f9fa;
 }
 
-.donation-table tbody tr:hover {
-  background: #f1f5ff;
-  transform: scale(1.01);
-}
-
-/* ===== Badges Custom ===== */
-.badge-success {
-  background: #16a34a !important;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-
-.badge-warning {
-  background: #f59e0b !important;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-
-.badge-danger {
-  background: #dc2626 !important;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-
-.badge-secondary {
-  background: #6b7280 !important;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-
-/* ===== Empty State ===== */
 .empty-state {
-  text-align: center;
-  padding: 2.5rem;
-  color: #64748b;
+  padding: 3rem 1rem;
+  color: #6c757d;
 }
 
-.empty-state i {
-  opacity: 0.3;
-  margin-bottom: 0.8rem;
-  color: #0d6efd;
+.badge {
+  font-size: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
 }
 
-.empty-state strong {
-  font-size: 1.1rem;
-  color: #1e293b;
+/* Responsive design */
+@media (max-width: 768px) {
+  .donation-table {
+    font-size: 0.875rem;
+  }
+  
+  .donation-table thead th,
+  .donation-table tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .donation-title {
+    font-size: 1.5rem;
+  }
 }
 
-.empty-state .small {
-  font-size: 0.9rem;
-  color: #94a3b8;
+/* Status badge colors */
+.bg-success {
+  background-color: #28a745 !important;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
 }
