@@ -24,7 +24,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
 
   const formRef = useRef(null);
 
-  // Fetch admin count saat modal dibuka
+  
   const { data: adminData, isLoading: isLoadingAdminCount } = useQuery({
     queryKey: ['adminCount'],
     queryFn: async () => {
@@ -61,29 +61,8 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
   };
 
   const { mutate, isLoading } = useMutation({
-    mutationFn: async () => {
-      let formattedPhone = form.phone;
-    
-      if (form.phone && form.phone.trim() !== '') {
-        formattedPhone = form.phone.startsWith('+') 
-          ? form.phone.replace(/\s+/g, '') 
-          : `+${form.phone.replace(/\s+/g, '')}`;
-      }
-      
-      // PERBAIKAN: Gunakan field name yang sesuai dengan backend (isAdmin bukan is_admin)
-      const payload = {
-        first_name: form.first_name,
-        last_name: form.last_name,
-        username: form.username,
-        phone: formattedPhone,
-        address: form.address,
-        email: form.email,
-        password: form.password,
-        isAdmin: userType === 'admin' // PERBAIKAN: isAdmin (huruf besar A)
-      };
-      
+    mutationFn: async (payload) => {
       console.log('Sending payload:', payload);
-      
       const response = await API.post("/signup", payload);
       return response.data;
     },
@@ -125,9 +104,16 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     e.preventDefault();
     e.stopPropagation();
 
+    console.log('Submit button clicked');
+
     const formElement = formRef.current;
     if (!formElement.checkValidity()) {
+      console.log('Form validation failed');
       setValidated(true);
+      const invalidFields = formElement.querySelectorAll(':invalid');
+      invalidFields.forEach(field => {
+        field.reportValidity();
+      });
       return;
     }
 
@@ -140,6 +126,26 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     }
 
     setValidated(true);
+
+    let formattedPhone = form.phone;
+    if (form.phone && form.phone.trim() !== '') {
+      formattedPhone = form.phone.startsWith('+') 
+        ? form.phone.replace(/\s+/g, '') 
+        : `+${form.phone.replace(/\s+/g, '')}`;
+    }
+
+    const payload = {
+      first_name: form.first_name,
+      last_name: form.last_name,
+      username: form.username,
+      phone: formattedPhone,
+      address: form.address,
+      email: form.email,
+      password: form.password,
+      isAdmin: userType === 'admin'
+    };
+
+    console.log('Calling mutate with payload:', payload);
     mutate();
   };
 
@@ -387,6 +393,9 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
             variant={userType === 'admin' ? 'warning' : 'primary'}
             className="submit-button"
             disabled={isLoading || (userType === 'admin' && !canCreateAdmin)}
+            onClick={(e) => {
+              console.log('Button onClick triggered');
+            }}
           >
             {isLoading && (
               <Spinner animation="border" size="sm" className="me-2" />
