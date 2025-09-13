@@ -63,17 +63,18 @@ type Campaign struct {
 }
 
 type Donation struct {
-	ID         int            `gorm:"primaryKey" json:"id" form:"id"`
-	Amount     float64        `json:"amount" form:"amount"`
-	Date       time.Time      `json:"date" form:"date"`
-	Status     string         `json:"status" form:"status"`
-	UserID     int            `json:"user_id"`
-	User       User           `gorm:"foreignKey:UserID" json:"user"`
-	OrderID    string         `json:"order_id" gorm:"type:varchar(100);uniqueIndex"`
-	PaymentURL string         `json:"payment_url" gorm:"type:text"`
-	CampaignID int            `json:"campaign_id"`
-	Campaign   Campaign       `gorm:"foreignKey:CampaignID" json:"campaign"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
+	ID            int            `gorm:"primaryKey" json:"id" form:"id"`
+	Amount        float64        `json:"amount" form:"amount"`
+	Date          time.Time      `json:"date" form:"date"`
+	Status        string         `json:"status" form:"status"`
+	UserID        int            `json:"user_id"`
+	User          User           `gorm:"foreignKey:UserID" json:"user"`
+	OrderID       string         `json:"order_id" gorm:"type:varchar(100);uniqueIndex"`
+	PaymentURL    string         `json:"payment_url" gorm:"type:text"`
+	PaymentMethod string         `json:"payment_method"`
+	CampaignID    int            `json:"campaign_id"`
+	Campaign      Campaign       `gorm:"foreignKey:CampaignID" json:"campaign"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
 }

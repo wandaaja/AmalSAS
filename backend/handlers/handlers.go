@@ -944,7 +944,7 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// Check if campaign exists and hasn't reached its target
+	// 🔹 Validasi campaign
 	campaign, err := h.campaignRepository.GetByID(uint(req.CampaignID))
 	if err != nil {
 		log.Println("CreateDonation GetCampaign error:", err)
@@ -968,7 +968,7 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// Get user information
+	// 🔹 Get user
 	user, err := h.userRepository.GetByID(uint(req.UserID))
 	if err != nil {
 		log.Println("CreateDonation GetUser error:", err)
@@ -979,6 +979,10 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 	}
 
 	now := time.Now()
+
+	// 🔹 Buat OrderID unik
+	orderID := fmt.Sprintf("DONATION-%d-%d", req.UserID, now.Unix())
+
 	donation := models.Donation{
 		Amount:     req.Amount,
 		Date:       now,
@@ -987,9 +991,10 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		CampaignID: req.CampaignID,
 		CreatedAt:  now,
 		UpdatedAt:  now,
+		OrderID:    orderID,
 	}
 
-	// Create donation first to get ID
+	// 🔹 Simpan dulu ke DB
 	if err := h.donationRepository.Create(&donation); err != nil {
 		log.Println("CreateDonation Create error:", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
@@ -998,29 +1003,29 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// Set user and campaign for payment service
+	// 🔹 Set relasi supaya PaymentService ada datanya
 	donation.User = *user
 	donation.Campaign = *campaign
 
-	// Create payment transaction
+	// 🔹 Buat transaksi Midtrans
 	paymentResp, err := h.paymentService.CreateTransaction(donation)
 	if err != nil {
 		log.Println("CreateDonation PaymentService error:", err)
-		// Optionally delete the donation if payment fails
-		h.donationRepository.Delete(uint(donation.ID))
+		// Daripada delete, kita update status jadi failed
+		donation.Status = "failed"
+		_ = h.donationRepository.Update(&donation)
+
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
 			Message: "Failed to create payment: " + err.Error(),
 		})
 	}
 
-	// Update donation with order ID and payment URL
-	// Extract order ID from token (Snap response doesn't include order ID directly)
-	// You might need to decode the token or handle this differently
+	// 🔹 Update Donation dengan Payment URL & Token
 	donation.PaymentURL = paymentResp.RedirectURL
 	if err := h.donationRepository.Update(&donation); err != nil {
 		log.Println("CreateDonation Update error:", err)
-		// Continue anyway since payment was created successfully
+		// Tidak fatal → lanjut
 	}
 
 	return c.JSON(http.StatusCreated, dto.SuccessResult{
@@ -1283,56 +1288,78 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 		})
 	}
 
-	// Handle different notification formats
-	var orderID string
-	if orderIDStr, ok := notification["order_id"].(string); ok {
-		orderID = orderIDStr
-	} else {
+	log.Println("Midtrans Notification:", notification)
+
+	// Ambil order_id
+	orderID, ok := notification["order_id"].(string)
+	if !ok || orderID == "" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
 			Code:    http.StatusBadRequest,
 			Message: "Missing order ID in notification",
 		})
 	}
 
-	// Verify payment
-	success, err := h.paymentService.VerifyPayment(orderID)
+	// Ambil transaction status
+	transactionStatus, _ := notification["transaction_status"].(string)
+	fraudStatus, _ := notification["fraud_status"].(string)
+	paymentType, _ := notification["payment_type"].(string)
+
+	// Cari donation berdasarkan order_id
+	donation, err := h.donationRepository.GetByOrderID(orderID)
 	if err != nil {
-		log.Println("HandlePaymentNotification VerifyPayment error:", err)
+		log.Println("HandlePaymentNotification GetByOrderID error:", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
-			Message: "Failed to verify payment",
+			Message: "Failed to get donation",
 		})
 	}
 
-	if success {
-		// Find donation by order ID (you'll need to add this method to repository)
-		donation, err := h.donationRepository.GetByOrderID(orderID)
-		if err != nil {
-			log.Println("HandlePaymentNotification GetByOrderID error:", err)
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to get donation",
-			})
+	if donation == nil {
+		return c.JSON(http.StatusNotFound, dto.ErrorResult{
+			Code:    http.StatusNotFound,
+			Message: "Donation not found",
+		})
+	}
+
+	log.Println("Payment Method:", donation.PaymentMethod)
+	// Mapping status Midtrans ke status internal
+	switch transactionStatus {
+	case "capture":
+		switch fraudStatus {
+		case "accept":
+			donation.Status = "success"
+		case "challenge":
+			donation.Status = "pending"
+		default:
+			donation.Status = "failed"
 		}
 
-		if donation == nil {
-			return c.JSON(http.StatusNotFound, dto.ErrorResult{
-				Code:    http.StatusNotFound,
-				Message: "Donation not found",
-			})
-		}
+	case "settlement":
+		donation.Status = "success"
 
-		// Update donation status
-		donation.Status = "paid"
-		if err := h.donationRepository.Update(donation); err != nil {
-			log.Println("HandlePaymentNotification Update error:", err)
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to update donation status",
-			})
-		}
+	case "pending":
+		donation.Status = "pending"
 
-		// Update campaign total collected
+	case "deny", "cancel", "expire":
+		donation.Status = "failed"
+
+	default:
+		donation.Status = "unknown"
+	}
+
+	donation.PaymentMethod = paymentType
+
+	// Update donation
+	if err := h.donationRepository.Update(donation); err != nil {
+		log.Println("HandlePaymentNotification UpdateDonation error:", err)
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to update donation status",
+		})
+	}
+
+	// Kalau sukses, update campaign total_collected
+	if donation.Status == "success" {
 		campaign, err := h.campaignRepository.GetByID(uint(donation.CampaignID))
 		if err != nil {
 			log.Println("HandlePaymentNotification GetCampaign error:", err)
