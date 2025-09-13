@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { Container, Table, Badge } from "react-bootstrap";
-import Moment from "react-moment";
+import dayjs from "dayjs"; // ✅ ganti react-moment jadi dayjs
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../config/api";
 import { UserContext } from "../context/userContext";
@@ -34,9 +34,6 @@ export default function DonationHistory() {
   let displayDonations = [];
 
   if (state.user.role === "admin") {
-    // Group donations by campaign for admin view
-    // Flatten donations grouped by campaign, or just show all donations sorted by campaign
-    // Here kita tampilkan semua donasi, tapi bisa diurutkan berdasarkan campaign
     displayDonations = donations?.sort((a, b) => {
       const titleA = a.campaign?.title?.toLowerCase() || "";
       const titleB = b.campaign?.title?.toLowerCase() || "";
@@ -45,7 +42,6 @@ export default function DonationHistory() {
       return 0;
     });
   } else {
-    // For donatur, filter donations by user id
     displayDonations = donations?.filter(
       (donation) => donation.user?.id === state.user.id
     );
@@ -150,9 +146,9 @@ export default function DonationHistory() {
                   <td>{donation.campaign?.title || "N/A"}</td>
                   <td>{convert(donation.amount)}</td>
                   <td>
-                    <Moment format="D MMM YYYY, HH:mm">
-                      {donation.created_at || donation.date}
-                    </Moment>
+                    {donation.created_at || donation.date
+                      ? dayjs(donation.created_at || donation.date).format("D MMM YYYY, HH:mm")
+                      : "-"}
                   </td>
                   <td>
                     <Badge bg={getStatusVariant(donation.status_payment)}>
