@@ -77,7 +77,7 @@ func (s *paymentService) CreateTransaction(donation models.Donation) (*snap.Resp
 		},
 	}
 
-	log.Printf("Creating Midtrans transaction: %+v\n", donation)
+	log.Printf("[Midtrans] Creating transaction: %+v\n", donation)
 
 	// Panggil Midtrans Snap
 	snapResp, err := zakatMidtrans.SnapClient.CreateTransaction(req)
@@ -94,12 +94,22 @@ func (s *paymentService) VerifyPayment(orderID string) (bool, error) {
 		return false, err
 	}
 
-	// Check if payment is successful
-	isSuccess := status.TransactionStatus == "settlement" ||
-		status.TransactionStatus == "capture" ||
-		status.TransactionStatus == "authorize"
+	log.Printf("[Midtrans] VerifyPayment OrderID=%s Status=%s Fraud=%s\n",
+		orderID, status.TransactionStatus, status.FraudStatus)
 
-	return isSuccess, nil
+	switch status.TransactionStatus {
+	case "capture":
+		if status.FraudStatus == "accept" {
+			return true, nil
+		}
+		return false, nil
+	case "settlement":
+		return true, nil
+	case "authorize":
+		return true, nil
+	default:
+		return false, nil
+	}
 }
 
 func (s *paymentService) GetTransactionStatus(orderID string) (*coreapi.TransactionStatusResponse, error) {
@@ -108,5 +118,6 @@ func (s *paymentService) GetTransactionStatus(orderID string) (*coreapi.Transact
 		return nil, fmt.Errorf("failed to check transaction status: %v", err)
 	}
 
+	log.Printf("[Midtrans] GetTransactionStatus OrderID=%s -> %s", orderID, status.TransactionStatus)
 	return status, nil
 }

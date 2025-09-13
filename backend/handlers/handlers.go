@@ -944,7 +944,6 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// 🔹 Validasi campaign
 	campaign, err := h.campaignRepository.GetByID(uint(req.CampaignID))
 	if err != nil {
 		log.Println("CreateDonation GetCampaign error:", err)
@@ -968,7 +967,6 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// 🔹 Get user
 	user, err := h.userRepository.GetByID(uint(req.UserID))
 	if err != nil {
 		log.Println("CreateDonation GetUser error:", err)
@@ -980,7 +978,6 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 
 	now := time.Now()
 
-	// 🔹 Buat OrderID unik
 	orderID := fmt.Sprintf("DONATION-%d-%d", req.UserID, now.Unix())
 
 	donation := models.Donation{
@@ -994,7 +991,6 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		OrderID:    orderID,
 	}
 
-	// 🔹 Simpan dulu ke DB
 	if err := h.donationRepository.Create(&donation); err != nil {
 		log.Println("CreateDonation Create error:", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
@@ -1003,15 +999,12 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// 🔹 Set relasi supaya PaymentService ada datanya
 	donation.User = *user
 	donation.Campaign = *campaign
 
-	// 🔹 Buat transaksi Midtrans
 	paymentResp, err := h.paymentService.CreateTransaction(donation)
 	if err != nil {
 		log.Println("CreateDonation PaymentService error:", err)
-		// Daripada delete, kita update status jadi failed
 		donation.Status = "failed"
 		_ = h.donationRepository.Update(&donation)
 
@@ -1021,11 +1014,9 @@ func (h *Handler) CreateDonation(c echo.Context) error {
 		})
 	}
 
-	// 🔹 Update Donation dengan Payment URL & Token
 	donation.PaymentURL = paymentResp.RedirectURL
 	if err := h.donationRepository.Update(&donation); err != nil {
 		log.Println("CreateDonation Update error:", err)
-		// Tidak fatal → lanjut
 	}
 
 	return c.JSON(http.StatusCreated, dto.SuccessResult{

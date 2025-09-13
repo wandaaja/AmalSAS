@@ -107,30 +107,30 @@ const DetailCampaign = () => {
     if (res.data && res.data.data) {
       const responseData = res.data.data;
 
-      // 🔹 Jika ada payment_url → langsung redirect
+      
       if (responseData.payment_url) {
         window.location.href = responseData.payment_url;
       } 
-      // 🔹 Jika ada token → panggil Snap
+      
       else if (responseData.token) {
         if (window.snap && typeof window.snap.pay === "function") {
           window.snap.pay(responseData.token, {
             onSuccess: (result) => {
               console.log("Payment success:", result);
-              navigate("/"); // ⬅️ balik ke home
+              navigate("/");
             },
             onPending: (result) => {
               console.log("Payment pending:", result);
-              navigate("/"); // ⬅️ balik ke home
+              navigate("/");
             },
             onError: (error) => {
               console.error("Payment error:", error);
               setError("Terjadi kesalahan saat pembayaran.");
-              navigate("/"); // ⬅️ balik ke home
+              navigate("/");
             },
             onClose: () => {
               console.warn("Transaksi dibatalkan");
-              navigate("/"); // ⬅️ balik ke home
+              navigate("/");
             },
           });
         } else {
