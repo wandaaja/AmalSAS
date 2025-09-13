@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"time"
 	"zakat/models"
 	zakatMidtrans "zakat/pkg/midtrans"
@@ -27,27 +28,58 @@ func (s *paymentService) CreateTransaction(donation models.Donation) (*snap.Resp
 	// Generate unique order ID dengan timestamp
 	orderID := fmt.Sprintf("DONATION-%d-%d", donation.ID, time.Now().Unix())
 
-	// Gunakan Snap API untuk mendapatkan payment URL
+	// fallback nama user
+	fname := donation.User.FirstName + " " + donation.User.LastName
+	if fname == "" || fname == " " {
+		if donation.User.Username != "" {
+			fname = donation.User.Username
+		} else {
+			fname = "Anonim"
+		}
+	}
+
+	// fallback email
+	email := donation.User.Email
+	if email == "" {
+		email = "no-reply@amalsas.id"
+	}
+
+	// fallback phone
+	phone := donation.User.Phone
+	if phone == "" {
+		phone = "0000000000"
+	}
+
+	// fallback campaign
+	title := donation.Campaign.Title
+	if title == "" {
+		title = "Donasi AmalSAS"
+	}
+
+	// Buat request Midtrans
 	req := &snap.Request{
 		TransactionDetails: midtransSdk.TransactionDetails{
 			OrderID:  orderID,
 			GrossAmt: int64(donation.Amount),
 		},
 		CustomerDetail: &midtransSdk.CustomerDetails{
-			FName: donation.User.FirstName + " " + donation.User.LastName,
-			Email: donation.User.Email,
-			Phone: donation.User.Phone,
+			FName: fname,
+			Email: email,
+			Phone: phone,
 		},
 		Items: &[]midtransSdk.ItemDetails{
 			{
 				ID:    fmt.Sprintf("ITEM-%d", donation.CampaignID),
 				Price: int64(donation.Amount),
 				Qty:   1,
-				Name:  fmt.Sprintf("Donasi untuk %s", donation.Campaign.Title),
+				Name:  fmt.Sprintf("Donasi untuk %s", title),
 			},
 		},
 	}
 
+	log.Printf("Creating Midtrans transaction: %+v\n", donation)
+
+	// Panggil Midtrans Snap
 	snapResp, err := zakatMidtrans.SnapClient.CreateTransaction(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create snap transaction: %v", err)
