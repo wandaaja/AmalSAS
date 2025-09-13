@@ -92,7 +92,7 @@ export default function MyDonations() {
         </div>
       )}
 
-      <Table striped bordered hover responsive className="donation-table">
+      <Table hover responsive className="donation-table">
         <thead>
           <tr>
             <th>No</th>
@@ -134,18 +134,14 @@ export default function MyDonations() {
             ))
           ) : (
             <tr>
-              <td colSpan="6" className="text-center text-muted py-4">
-                <div>
-                  <i
-                    className="fas fa-donate fa-2x mb-3"
-                    style={{ opacity: 0.5 }}
-                  />
-                </div>
-                No donation history available.
-                <div className="small mt-2">
-                  Your donations will appear here once you make a contribution.
-                </div>
-              </td>
+              <td colSpan="6" className="empty-state">
+  <i className="fas fa-donate fa-3x" />
+  <div><strong>No donation history available</strong></div>
+  <div className="small mt-2">
+    Your donations will appear here once you make a contribution.
+  </div>
+</td>
+
             </tr>
           )}
         </tbody>
