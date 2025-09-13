@@ -108,7 +108,7 @@ function AppContent() {
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/donations" element={<div>Donations Page</div>} />
-            <Route path="/history" element={History} />
+            <Route path="/history" element={<History/>} />
           </Route>
 
           {/* Admin Only Routes */}
