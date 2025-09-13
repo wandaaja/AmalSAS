@@ -69,7 +69,6 @@ export default function DonationHistory() {
 
   return (
     <>
-      <NavbarWithoutSearch />
 
       <Container className="my-5">
         <h3 className="fw-bold mb-4">My Donation History</h3>
