@@ -19,7 +19,8 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     phone: "",
     address: "",
     email: "",
-    password: ""
+    password: "",
+    isAdmin: true
   });
 
   const formRef = useRef(null);
@@ -146,7 +147,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     };
 
     console.log('Calling mutate with payload:', payload);
-    mutate();
+    mutate(payload);
   };
 
   useEffect(() => {
