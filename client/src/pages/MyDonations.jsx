@@ -4,7 +4,6 @@ import Moment from "react-moment";
 import { useQuery } from "react-query";
 import { API } from "../config/api";
 import { UserContext } from "../context/userContext";
-import NavbarWithoutSearch from "../components/NavbarWithoutSearch";
 import { convert } from "rupiah-format";
 
 export default function DonationHistory() {
