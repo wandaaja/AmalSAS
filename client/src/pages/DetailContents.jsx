@@ -82,89 +82,78 @@ const DetailCampaign = () => {
   }, [id]);
 
   const handleDonate = async () => {
-    setError("");
-    
-    if (!state.isLogin) {
-      setShowLoginModal(true);
-      return;
-    }
+  setError("");
 
-    if (!amount || isNaN(amount) || Number(amount) < 1000) {
-      setError("Masukkan jumlah donasi minimal Rp 1.000");
-      return;
-    }
+  if (!state.isLogin) {
+    setShowLoginModal(true);
+    return;
+  }
 
-    setIsLoading(true);
-    try {
-      const res = await API.post("/donations", {
-        amount: Number(amount),
-        user_id: state.user.id,
-        campaign_id: Number(id),
-      });
+  if (!amount || isNaN(amount) || Number(amount) < 1000) {
+    setError("Masukkan jumlah donasi minimal Rp 1.000");
+    return;
+  }
 
-      console.log("Donation response:", res.data);
+  setIsLoading(true);
+  try {
+    const res = await API.post("/donations", {
+      amount: Number(amount),
+      user_id: state.user.id,
+      campaign_id: Number(id),
+    });
 
-      // Pastikan struktur response sesuai dengan backend Anda
-      if (res.data && res.data.data) {
-        const responseData = res.data.data;
-        
-        // Cek jika backend mengembalikan payment_url langsung
-        if (responseData.payment_url) {
-          // Redirect langsung ke payment URL
-          window.location.href = responseData.payment_url;
-        } 
-        // Cek jika backend mengembalikan token untuk Snap
-        else if (responseData.token) {
-          if (window.snap && typeof window.snap.pay === 'function') {
-            window.snap.pay(responseData.token, {
-              onSuccess: (result) => {
-                console.log('Payment success:', result);
-                navigate("/donation-success", { 
-                  state: { 
-                    donation: responseData.donation,
-                    transactionId: result.transaction_id 
-                  }
-                });
-              },
-              onPending: (result) => {
-                console.log('Payment pending:', result);
-                navigate("/donation-pending", { 
-                  state: { transactionId: result.transaction_id } 
-                });
-              },
-              onError: (error) => {
-                console.error('Payment error:', error);
-                setError("Terjadi kesalahan saat pembayaran. Silakan coba lagi.");
-              },
-              onClose: () => {
-                setError("Transaksi dibatalkan. Anda dapat mencoba lagi kapan saja.");
-              }
-            });
-          } else {
-            setError("Payment gateway tidak tersedia. Silakan refresh halaman.");
-          }
-        }
-        // Jika backend mengembalikan data dalam format yang berbeda
-        else if (responseData.data && responseData.data.payment_url) {
-          window.location.href = responseData.data.payment_url;
-        }
-        else {
-          setError("Response dari server tidak valid. Silakan coba lagi.");
+    console.log("Donation response:", res.data);
+
+    if (res.data && res.data.data) {
+      const responseData = res.data.data;
+
+      // 🔹 Jika ada payment_url → langsung redirect
+      if (responseData.payment_url) {
+        window.location.href = responseData.payment_url;
+      } 
+      // 🔹 Jika ada token → panggil Snap
+      else if (responseData.token) {
+        if (window.snap && typeof window.snap.pay === "function") {
+          window.snap.pay(responseData.token, {
+            onSuccess: (result) => {
+              console.log("Payment success:", result);
+              navigate("/"); // ⬅️ balik ke home
+            },
+            onPending: (result) => {
+              console.log("Payment pending:", result);
+              navigate("/"); // ⬅️ balik ke home
+            },
+            onError: (error) => {
+              console.error("Payment error:", error);
+              setError("Terjadi kesalahan saat pembayaran.");
+              navigate("/"); // ⬅️ balik ke home
+            },
+            onClose: () => {
+              console.warn("Transaksi dibatalkan");
+              navigate("/"); // ⬅️ balik ke home
+            },
+          });
+        } else {
+          setError("Payment gateway tidak tersedia. Silakan refresh halaman.");
         }
       } else {
-        setError("Terjadi kesalahan pada response server.");
+        setError("Response dari server tidak valid.");
       }
-
-    } catch (err) {
-      console.error("Gagal memproses donasi:", err);
-      const errorMessage = err.response?.data?.message || 
-                          err.message || 
-                          "Terjadi kesalahan saat memproses donasi";
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError("Terjadi kesalahan pada response server.");
     }
-  };
+  } catch (err) {
+    console.error("Gagal memproses donasi:", err);
+    const errorMessage =
+      err.response?.data?.message ||
+      err.message ||
+      "Terjadi kesalahan saat memproses donasi";
+    setError(errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   if (!campaign) {
     return (
