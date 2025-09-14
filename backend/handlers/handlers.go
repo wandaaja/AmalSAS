@@ -1279,7 +1279,7 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 		})
 	}
 
-	log.Println("Midtrans Notification:", notification)
+	log.Println("Midtrans Notification xx:", notification)
 
 	// Ambil order_id
 	orderID, ok := notification["order_id"].(string)
