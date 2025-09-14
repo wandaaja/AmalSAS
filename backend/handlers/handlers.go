@@ -1284,13 +1284,14 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 	// Ambil order_id
 	orderID, ok := notification["order_id"].(string)
 	if !ok || orderID == "" {
+		log.Println("tidak:")
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
 			Code:    http.StatusBadRequest,
 			Message: "Missing order ID in notification",
 		})
 	}
 
-	log.Println("cek 1:")
+	log.Println("cek 1:", orderID)
 
 	// Ambil transaction status
 	transactionStatus, _ := notification["transaction_status"].(string)
