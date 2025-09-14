@@ -517,21 +517,6 @@ const CampaignForm = ({ initialData = {}, isEdit = false, onSuccess }) => {
           </button>
         </div>
       </form>
-
-      {/* Debug info - bisa dihapus di production */}
-      <div style={{ 
-        marginTop: '30px', 
-        padding: '15px', 
-        backgroundColor: '#f5f5f5', 
-        borderRadius: '6px',
-        fontSize: '12px',
-        color: '#666'
-      }}>
-        <strong>Debug Info:</strong><br />
-        API Base: {API.defaults.baseURL}<br />
-        Mode: {isEdit ? 'Edit' : 'Create'}<br />
-        Campaign ID: {initialData.id || 'New'}
-      </div>
     </div>
   );
 };

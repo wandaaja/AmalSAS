@@ -16,7 +16,7 @@ const dummyCampaigns = [
     title: "Bantuan Pendidikan Anak Yatim",
     category: "pendidikan",
     target_total: 5000000,
-    totalCollected: 3200000,
+    total_collected: 3200000,
     status: "active",
     location: "Jakarta",
     donorCount: 12,
@@ -30,7 +30,7 @@ const dummyCampaigns = [
     title: "Bantuan Korban Banjir",
     category: "bencana",
     target_total: 10000000,
-    totalCollected: 7500000,
+    total_collected: 7500000,
     status: "active",
     location: "Bekasi",
     donorCount: 8,
@@ -68,7 +68,7 @@ function HomeAdmin() {
 
   const campaignData = campaigns?.map(campaign => ({
     ...campaign,
-    progressPercentage: Math.min(100, (campaign.totalCollected / campaign.target_total) * 100)
+    progressPercentage: Math.min(100, (campaign.total_collected / campaign.target_total) * 100)
   }));
 
   return (
@@ -153,7 +153,7 @@ function HomeAdmin() {
                 </td>
                 <td style={{ textAlign: "center" }}>{formatRupiah(campaign.target_total)}</td>
                 <td>
-                  <div>{formatRupiah(campaign.totalCollected || 0)}</div>
+                  <div>{formatRupiah(campaign.total_collected || 0)}</div>
                   <div className="progress mt-1" style={{ height: "8px", backgroundColor: "#eee" }}>
                     <div
                       className="progress-bar"
