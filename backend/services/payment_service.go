@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"log"
-	"time"
 	"zakat/models"
 	zakatMidtrans "zakat/pkg/midtrans"
 
@@ -26,7 +25,7 @@ func NewPaymentService() PaymentService {
 
 func (s *paymentService) CreateTransaction(donation models.Donation) (*snap.Response, error) {
 	// Generate unique order ID dengan timestamp
-	orderID := fmt.Sprintf("DONATION-%d-%d", donation.ID, time.Now().Unix())
+	// orderID := fmt.Sprintf("DONATION-%d-%d", donation.ID, time.Now().Unix())
 
 	// fallback nama user
 	fname := donation.User.FirstName + " " + donation.User.LastName
@@ -59,7 +58,7 @@ func (s *paymentService) CreateTransaction(donation models.Donation) (*snap.Resp
 	// Buat request Midtrans
 	req := &snap.Request{
 		TransactionDetails: midtransSdk.TransactionDetails{
-			OrderID:  orderID,
+			OrderID:  donation.OrderID,
 			GrossAmt: int64(donation.Amount),
 		},
 		CustomerDetail: &midtransSdk.CustomerDetails{
