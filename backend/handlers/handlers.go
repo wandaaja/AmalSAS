@@ -1314,6 +1314,7 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 
 	log.Println("Payment Method:", donation.PaymentMethod)
 	// Mapping status Midtrans ke status internal
+	log.Println("status :", transactionStatus)
 	switch transactionStatus {
 	case "capture":
 		switch fraudStatus {
@@ -1337,6 +1338,7 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 	default:
 		donation.Status = "unknown"
 	}
+	log.Println("status.:", donation.Status)
 
 	donation.PaymentMethod = paymentType
 
@@ -1349,6 +1351,15 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 		})
 	}
 
+	donationNew, err := h.donationRepository.GetByOrderID(orderID)
+	if err != nil {
+		log.Println("HandlePaymentNotification GetByOrderID error:", err)
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to get donation",
+		})
+	}
+	log.Println("ghh:", donationNew)
 	// Kalau sukses, update campaign total_collected
 	if donation.Status == "success" {
 		campaign, err := h.campaignRepository.GetByID(uint(donation.CampaignID))
