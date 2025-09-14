@@ -1290,6 +1290,8 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 		})
 	}
 
+	log.Println("cek 1:")
+
 	// Ambil transaction status
 	transactionStatus, _ := notification["transaction_status"].(string)
 	fraudStatus, _ := notification["fraud_status"].(string)
@@ -1304,7 +1306,7 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 			Message: "Failed to get donation",
 		})
 	}
-
+	log.Println("cek 2:")
 	if donation == nil {
 		return c.JSON(http.StatusNotFound, dto.ErrorResult{
 			Code:    http.StatusNotFound,
@@ -1350,7 +1352,7 @@ func (h *Handler) HandlePaymentNotification(c echo.Context) error {
 			Message: "Failed to update donation status",
 		})
 	}
-
+	log.Println("cek 3:")
 	donationNew, err := h.donationRepository.GetByOrderID(orderID)
 	if err != nil {
 		log.Println("HandlePaymentNotification GetByOrderID error:", err)
