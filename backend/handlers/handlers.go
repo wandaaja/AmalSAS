@@ -167,10 +167,27 @@ func (h *Handler) CreateUser(c echo.Context) error {
 
 	log.Printf("Request Body: %+v", req)
 
-	// Cek apakah ingin daftar sebagai admin
+	// Cek apakah username sudah digunakan
+	if existingUser, _ := h.userRepository.GetByUsername(req.Username); existingUser != nil {
+		return c.JSON(http.StatusConflict, dto.ErrorResult{
+			Code:    http.StatusConflict,
+			Message: "Username sudah digunakan",
+		})
+	}
+
+	// Cek apakah email sudah digunakan
+	if existingUser, _ := h.userRepository.GetByEmail(req.Email); existingUser != nil {
+		return c.JSON(http.StatusConflict, dto.ErrorResult{
+			Code:    http.StatusConflict,
+			Message: "Email sudah digunakan",
+		})
+	}
+
+	// Cek batas admin (max 3)
 	if req.IsAdmin {
 		adminCount, err := h.userRepository.CountAdmins()
 		if err != nil {
+			log.Printf("❌ Error CountAdmins: %v", err)
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 				Code:    http.StatusInternalServerError,
 				Message: "Failed to check admin count",
@@ -188,6 +205,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 	// Hash password
 	hashedPassword, err := bcrypt.HashingPassword(req.Password)
 	if err != nil {
+		log.Printf("❌ Error hashing password: %v", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
 			Message: "Failed to hash password",
@@ -210,6 +228,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 	log.Printf("Final User Model: %+v", user)
 
 	if err := h.userRepository.Create(&user); err != nil {
+		log.Printf("❌ Error CreateUser DB: %v", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
 			Message: "Failed to create user",
@@ -226,16 +245,16 @@ func (h *Handler) CreateUser(c echo.Context) error {
 	tokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	secretKey := []byte(jwtToken.GetSecretKey())
-
 	token, err := tokenObj.SignedString(secretKey)
 	if err != nil {
+		log.Printf("❌ Error generate token: %v", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
 			Message: "Failed to generate authentication token",
 		})
 	}
 
-	// Buat struktur AuthData
+	// Buat response AuthData
 	authData := dtoAuth.AuthData{
 		ID:        uint(user.ID),
 		FirstName: user.FirstName,
