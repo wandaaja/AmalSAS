@@ -6,6 +6,11 @@
   margin: 0 auto;
 }
 
+.modal-header {
+  border-bottom: none;
+  padding: 1.5rem 1.5rem 0;
+}
+
 .forgot-password-modal .modal-body {
   padding: 1.5rem;
 }

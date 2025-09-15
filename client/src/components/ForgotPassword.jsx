@@ -116,7 +116,7 @@ export default function ForgotPasswordModal({ show, onHide, openSignIn }) {
       size="lg"
       className="forgot-password-modal"
     >
-      <Modal.Header closeButton className="border-0 pb-0">
+      <Modal.Header closeButton className="modal-header">
         <Modal.Title className="w-100 text-center">
           <div className="d-flex justify-content-center mb-3">
             <div className="bg-primary rounded-circle p-3">
