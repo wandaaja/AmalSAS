@@ -31,13 +31,13 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (r *userRepository) CountAdmins() (int64, error) {
 	var count int64
-	err := r.db.Model(&models.User{}).Where("isAdmin = ?", true).Count(&count).Error
+	err := r.db.Model(&models.User{}).Where("is_admin = ?", true).Count(&count).Error
 	return count, err
 }
 
 func (r *userRepository) FindAdmin() (*models.User, error) {
 	var user models.User
-	err := r.db.Where("isAdmin = ?", true).First(&user).Error
+	err := r.db.Where("is_admin = ?", true).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
