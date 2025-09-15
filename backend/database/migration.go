@@ -7,16 +7,15 @@ import (
 )
 
 func RunMigration() {
+	fmt.Println("🔄 Running migration...")
 	err := postgres.DB.AutoMigrate(
 		&models.User{},
 		&models.Campaign{},
 		&models.Donation{},
 	)
-
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("❌ Migration failed:", err)
 		panic("Migration Failed")
 	}
-
-	fmt.Println("Migration Success")
+	fmt.Println("✅ Migration Success")
 }
