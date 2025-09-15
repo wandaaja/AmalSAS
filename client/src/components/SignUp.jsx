@@ -20,7 +20,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
     address: "",
     email: "",
     password: "",
-    isAdmin: true
+    is_admin: true
   });
 
   const formRef = useRef(null);
@@ -143,7 +143,7 @@ export default function SignUpModal({ show, onHide, openSignIn }) {
       address: form.address,
       email: form.email,
       password: form.password,
-      isAdmin: userType === 'admin'
+      is_admin: userType === 'admin'
     };
 
     console.log('Calling mutate with payload:', payload);

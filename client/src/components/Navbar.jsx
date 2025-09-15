@@ -63,7 +63,7 @@ export default function Navbar() {
 
 
   const [state, dispatch] = useContext(UserContext);
-  const isAdmin = state.user?.isAdmin;
+  const isAdmin = state.user?.is_admin;
 
   useEffect(() => {
     const fetchCampaigns = async () => {

@@ -12,7 +12,7 @@ export default function MyDonations() {
   const [selectedCampaign, setSelectedCampaign] = useState("");
   const [campaigns, setCampaigns] = useState([]);
   const [filteredDonations, setFilteredDonations] = useState([]);
-  const isAdmin = state.user?.isAdmin;
+  const isAdmin = state.user?.is_admin;
 
   useEffect(() => {
     document.body.style.background = "rgba(196, 196, 196, 0.25)";
