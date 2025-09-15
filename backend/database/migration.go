@@ -7,7 +7,6 @@ import (
 )
 
 func RunMigration() {
-	fmt.Println("🔄 Running migration...")
 	err := postgres.DB.AutoMigrate(
 		&models.User{},
 		&models.Campaign{},
