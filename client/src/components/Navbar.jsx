@@ -7,7 +7,7 @@ import { UserContext } from "../context/userContext";
 import { setAuthToken } from "../config/api";
 import { API } from "../config/api";
 import "./Navbar.css"
-
+import ResetPasswordModal from "./ResetPassword";
 const navbarPages = [
   {
     id: 'home',
@@ -50,6 +50,12 @@ const navbarPages = [
     title: 'Add Campaign',
     content: 'Create new donation campaign',
     path: '/admin/campaigns/add'
+  },
+  {
+    id: 'reset-pass',
+    title: 'Reset Pass',
+    content: 'Reset Password',
+    path: '/reset-pass'
   }
 ];
 
@@ -357,6 +363,11 @@ export default function Navbar() {
       />
       <SignUpModal
         show={activeModal === 'signup'}
+        onHide={() => setActiveModal(null)}
+        openSignIn={() => setActiveModal('signin')}
+      />
+      <ResetPasswordModal
+        show={activeModal === 'reset-pass'}
         onHide={() => setActiveModal(null)}
         openSignIn={() => setActiveModal('signin')}
       />

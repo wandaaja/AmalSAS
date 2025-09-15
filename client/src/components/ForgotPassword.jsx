@@ -9,6 +9,7 @@ import {
   FaWhatsapp,
   FaShieldAlt 
 } from "react-icons/fa";
+import "./ForgotPass.css"
 
 export default function ForgotPasswordModal({ show, onHide, openSignIn }) {
   const [email, setEmail] = useState("");
@@ -113,6 +114,7 @@ export default function ForgotPasswordModal({ show, onHide, openSignIn }) {
       centered 
       backdrop="static"
       size="lg"
+      className="forgot-password-modal"
     >
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="w-100 text-center">
