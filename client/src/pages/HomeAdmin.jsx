@@ -19,7 +19,7 @@ const dummyCampaigns = [
     total_collected: 3200000,
     status: "active",
     location: "Jakarta",
-    donorCount: 12,
+    donor_count: 12,
     donations: [
       { user: { fullname: "Andi Wijaya" }, amount: 500000 },
       { user: { fullname: "Budi Santoso" }, amount: 300000 }
@@ -33,7 +33,7 @@ const dummyCampaigns = [
     total_collected: 7500000,
     status: "active",
     location: "Bekasi",
-    donorCount: 8,
+    donor_count: 8,
     donations: [
       { user: { fullname: "Citra Dewi" }, amount: 1000000 },
       { user: { fullname: "Dian Putra" }, amount: 500000 }
@@ -169,17 +169,17 @@ function HomeAdmin() {
                   </small>
                 </td>
                 <td>
-                  {campaign.donorCount} donatur
-                  {campaign.donorCount > 0 && (
+                  {campaign.donor_count} donatur
+                  {campaign.donor_count > 0 && (
                     <ul style={{ listStyle: "none", paddingLeft: 0, marginTop: "6px", fontSize: "13px" }}>
                       {campaign.donations?.slice(0, 3).map((donation, i) => (
                         <li key={i}>
                           • {donation.user?.fullname || 'Anonim'} ({formatRupiah(donation.amount)})
                         </li>
                       ))}
-                      {campaign.donorCount > 3 && (
+                      {campaign.donor_count > 3 && (
                         <li style={{ color: "#888" }}>
-                          +{campaign.donorCount - 3} lainnya
+                          +{campaign.donor_count - 3} lainnya
                         </li>
                       )}
                     </ul>
