@@ -28,14 +28,20 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	campaignRepo := repositories.NewCampaignRepository(db)
 	donationRepo := repositories.NewDonationRepository(db)
 
+	passwordRepo := repositories.NewPasswordResetRepository(db)
 	// Services
 	paymentService := services.NewPaymentService()
 
 	// Handlers
-	handler := handlers.NewHandler(userRepo, campaignRepo, donationRepo, paymentService)
+	handler := handlers.NewHandler(userRepo, campaignRepo, donationRepo, paymentService, passwordRepo)
 
 	// API Routes
 	api := e.Group("/api/v1")
+
+	// Passord
+	api.POST("/forgot-password", handler.ForgotPassword)
+	api.POST("/reset-password", handler.ResetPassword)
+	api.GET("/verify-reset-token", handler.VerifyResetToken)
 
 	api.GET("/check-auth", middleware.Auth(handler.CheckAuth))
 
