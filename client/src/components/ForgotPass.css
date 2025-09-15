@@ -1,127 +1,184 @@
 /* Container utama */
+.forgot-password-modal .modal-content {
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
 .forgot-password-modal .modal-body {
-  padding: 2rem 1.5rem;
-  text-align: center;
+  padding: 1.5rem;
 }
 
-/* Heading */
-.forgot-password-modal .modal-title,
-.forgot-password-title {
-  color: #2e8b57;
-  font-weight: 700;
-  font-size: 1.6rem;
-  margin-bottom: 0.25rem;
-  text-align: center;
+/* Header */
+.forgot-password-modal .modal-header {
+  border-bottom: none;
+  padding-bottom: 0;
+  flex-direction: column;
+  align-items: center;
 }
 
-.forgot-password-subtitle {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 2rem;
-  text-align: center;
+.forgot-password-modal .modal-header .btn-close {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+/* Icon */
+.forgot-password-modal .bg-primary {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.forgot-password-modal .bg-primary .text-white {
+  color: #0d6efd !important;
+}
+
+/* Judul */
+.forgot-password-modal .modal-title h3 {
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.forgot-password-modal .modal-title p {
+  font-size: 0.9rem;
 }
 
 /* Pilihan metode */
 .method-card {
-  border-radius: 10px;
-  padding: 1.25rem;
-  border: 1px solid #ddd;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  height: 100%;
 }
 
 .method-card:hover {
-  border-color: #2e8b57;
-  background-color: rgba(46, 139, 87, 0.05);
+  border-color: #0d6efd;
+  background-color: rgba(13, 110, 253, 0.05);
 }
 
-.method-card.active {
-  border: 2px solid #2e8b57;
-  background-color: rgba(46, 139, 87, 0.1);
+.method-card.border-primary {
+  border-width: 2px;
 }
 
-.method-card i {
-  font-size: 2rem;
-  color: #2e8b57;
+.method-card.border-success {
+  border-width: 2px;
+}
+
+.method-card .text-primary {
+  color: #0d6efd !important;
+}
+
+.method-card .text-success {
+  color: #198754 !important;
 }
 
 .method-card h6 {
-  font-weight: 600;
-  margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
 }
 
 .method-card small {
-  display: block;
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: 0.8rem;
 }
 
 /* Form input */
-.forgot-password-modal .form-group {
-  text-align: left;
-  margin-top: 1.5rem;
-}
-
-.forgot-password-modal label {
+.forgot-password-modal .form-label {
   font-weight: 600;
+  font-size: 0.9rem;
   margin-bottom: 0.5rem;
-  color: #333;
+  display: flex;
+  align-items: center;
 }
 
 .forgot-password-modal .form-control {
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .forgot-password-modal .form-control:focus {
-  border-color: #2e8b57;
-  box-shadow: 0 0 0 0.25rem rgba(46, 139, 87, 0.25);
-  outline: none;
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* Error feedback */
-.forgot-password-modal .invalid-feedback {
+.forgot-password-modal .form-text {
   font-size: 0.8rem;
-  margin-top: 0.25rem;
-  color: #dc3545;
+  margin-top: 0.5rem;
 }
 
-/* Tombol submit */
-.forgot-password-modal .btn-submit {
-  width: 100%;
+/* Alert */
+.forgot-password-modal .alert {
   border-radius: 8px;
-  font-weight: 600;
-  padding: 0.8rem;
-  font-size: 1rem;
-  margin-top: 1rem;
-  background-color: #2e8b57;
-  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
 }
 
-.forgot-password-modal .btn-submit:hover {
-  background-color: #256f47;
+/* Tombol */
+.forgot-password-modal .btn {
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.forgot-password-modal .btn-link {
+  font-size: 0.9rem;
+}
+
+/* Spinner */
+.forgot-password-modal .spinner-border-sm {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* Success state */
+.forgot-password-modal .text-center.py-3 {
+  padding: 0.5rem 0;
+}
+
+.forgot-password-modal .text-center.py-3 h5 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.forgot-password-modal .text-center.py-3 p {
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
 }
 
 /* Responsif */
 @media (max-width: 576px) {
   .forgot-password-modal .modal-body {
-    padding: 1.5rem 1rem;
+    padding: 1.25rem;
   }
-
+  
+  .forgot-password-modal .modal-title h3 {
+    font-size: 1.25rem;
+  }
+  
   .method-card {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 0.75rem;
   }
+  
+  .forgot-password-modal .btn {
+    padding: 0.65rem;
+  }
+}
 
-  .method-card i {
-    font-size: 1.5rem;
-  }
+/* Utility classes */
+.bg-primary-light {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.bg-success-light {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.border-gray-300 {
+  border-color: #dee2e6 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
