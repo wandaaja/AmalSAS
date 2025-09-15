@@ -1,64 +1,37 @@
-.forgot-password-modal .modal-dialog {
-  max-width: 500px;
-  margin: 1.75rem auto;
-}
-
-.forgot-password-modal .modal-content {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.forgot-password-modal .modal-header {
-  border-bottom: none;
-  padding: 1.5rem 1.5rem 0;
-}
-
-.forgot-password-modal .modal-header .btn-close {
-  width: 1rem;
-  height: 1rem;
-  padding: 0.4rem;
-  border-radius: 50%;
-  background-color: #e6e6e6;
-  background-size: 1rem;
-  opacity: 0.9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.forgot-password-modal .modal-header .btn-close:hover {
-  background-color: #ccc;
-  opacity: 1;
-}
-
-.forgot-password-modal .modal-title {
-  color: #2e8b57;
-  font-weight: 600;
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
+/* Container utama */
 .forgot-password-modal .modal-body {
-  padding: 0 1.5rem 1.5rem;
-  max-height: 70vh;
-  overflow-y: auto;
+  padding: 2rem 1.5rem;
+  text-align: center;
 }
 
-/* Alert message */
-.forgot-password-modal .alert {
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+/* Heading */
+.forgot-password-modal .modal-title,
+.forgot-password-title {
+  color: #2e8b57;
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
 }
 
-/* Method card (email / whatsapp pilihan) */
+.forgot-password-subtitle {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Pilihan metode */
 .method-card {
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1.25rem;
-  border: 1px solid #ced4da;
+  border: 1px solid #ddd;
   transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .method-card:hover {
@@ -66,34 +39,46 @@
   background-color: rgba(46, 139, 87, 0.05);
 }
 
+.method-card.active {
+  border: 2px solid #2e8b57;
+  background-color: rgba(46, 139, 87, 0.1);
+}
+
+.method-card i {
+  font-size: 2rem;
+  color: #2e8b57;
+}
+
 .method-card h6 {
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin: 0;
+  font-size: 1rem;
 }
 
 .method-card small {
-  font-size: 0.8rem;
+  display: block;
+  font-size: 0.85rem;
   color: #6c757d;
 }
 
-/* Form group */
+/* Form input */
 .forgot-password-modal .form-group {
-  margin-bottom: 1rem;
+  text-align: left;
+  margin-top: 1.5rem;
 }
 
 .forgot-password-modal label {
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   color: #333;
-  display: flex;
-  align-items: center;
 }
 
 .forgot-password-modal .form-control {
-  padding: 0.75rem 1rem;
+  padding: 0.8rem 1rem;
   border-radius: 8px;
   border: 1px solid #ced4da;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
 
 .forgot-password-modal .form-control:focus {
@@ -102,32 +87,41 @@
   outline: none;
 }
 
+/* Error feedback */
 .forgot-password-modal .invalid-feedback {
   font-size: 0.8rem;
   margin-top: 0.25rem;
+  color: #dc3545;
 }
 
-/* Button submit */
-.forgot-password-modal .btn-lg {
+/* Tombol submit */
+.forgot-password-modal .btn-submit {
+  width: 100%;
   border-radius: 8px;
-  font-weight: 500;
-  padding: 0.75rem;
+  font-weight: 600;
+  padding: 0.8rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  background-color: #2e8b57;
+  border: none;
 }
 
-.forgot-password-modal .btn-link {
-  font-size: 0.9rem;
-  text-decoration: underline;
+.forgot-password-modal .btn-submit:hover {
+  background-color: #256f47;
 }
 
 /* Responsif */
 @media (max-width: 576px) {
-  .forgot-password-modal .modal-dialog {
-    margin: 0.5rem;
-    max-width: none;
-  }
-  
   .forgot-password-modal .modal-body {
-    padding: 0 1rem 1rem;
-    max-height: 80vh;
+    padding: 1.5rem 1rem;
+  }
+
+  .method-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .method-card i {
+    font-size: 1.5rem;
   }
 }
