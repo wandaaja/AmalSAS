@@ -32,7 +32,7 @@ const DetailCampaign = () => {
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const isAdmin = state.isLogin && state.user?.is_admin;
+  const isAdmin = state.isLogin && state.user?.isAdmin;
 
   // MIDTRANS CLIENT KEY - langsung di set di sini
   const MIDTRANS_CLIENT_KEY = "SB-Mid-client-cSoG5C-yKiBSkgTj";

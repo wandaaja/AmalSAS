@@ -31,13 +31,13 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (r *userRepository) CountAdmins() (int64, error) {
 	var count int64
-	err := r.db.Model(&models.User{}).Where("is_admin = ?", true).Count(&count).Error
+	err := r.db.Model(&models.User{}).Where("isAdmin = ?", true).Count(&count).Error
 	return count, err
 }
 
 func (r *userRepository) FindAdmin() (*models.User, error) {
 	var user models.User
-	err := r.db.Where("is_admin = ?", true).First(&user).Error
+	err := r.db.Where("isAdmin = ?", true).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -65,22 +65,29 @@ func (r *userRepository) GetByID(id uint) (*models.User, error) {
 	}
 	return &user, err
 }
+
 func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 	var user models.User
 	err := r.db.Where("email = ?", email).First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
-	return &user, err
+	return &user, nil
 }
 
 func (r *userRepository) GetByUsername(username string) (*models.User, error) {
 	var user models.User
 	err := r.db.Where("username = ?", username).First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
-	return &user, err
+	return &user, nil
 }
 
 func (r *userRepository) Update(user *models.User) error {

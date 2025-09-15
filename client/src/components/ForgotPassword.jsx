@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useMutation } from "@tanstack/react-query";
 import { API } from "../config/api";
-import { FaEnvelope, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
+import { FaEnvelope, FaCheckCircle, FaArrowLeft, FaWhatsapp } from "react-icons/fa";
 
 export default function ForgotPasswordModal({ show, onHide, openSignIn, zIndex }) {
   const [email, setEmail] = useState("");
@@ -12,7 +12,7 @@ export default function ForgotPasswordModal({ show, onHide, openSignIn, zIndex }
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async () => {
-      const response = await API.post("/auth/forgot-password", { email });
+      const response = await API.post("/auth/forgot-password", { email, Whatsapp });
       return response.data;
     },
     onSuccess: () => {
