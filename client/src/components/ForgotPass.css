@@ -2,6 +2,8 @@
 .forgot-password-modal .modal-content {
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  margin: 0 auto;
 }
 
 .forgot-password-modal .modal-body {
@@ -11,7 +13,8 @@
 /* Header */
 .forgot-password-modal .modal-header {
   border-bottom: none;
-  padding-bottom: 0;
+  padding: 1.5rem 1.5rem 0.5rem;
+  position: relative;
   flex-direction: column;
   align-items: center;
 }
@@ -23,62 +26,99 @@
 }
 
 /* Icon */
-.forgot-password-modal .bg-primary {
-  background-color: rgba(13, 110, 253, 0.1) !important;
+.forgot-password-modal .modal-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(46, 139, 87, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
-.forgot-password-modal .bg-primary .text-white {
-  color: #0d6efd !important;
+.forgot-password-modal .modal-icon i {
+  font-size: 1.5rem;
+  color: #2e8b57;
 }
 
 /* Judul */
+.forgot-password-modal .modal-title {
+  text-align: center;
+  width: 100%;
+}
+
 .forgot-password-modal .modal-title h3 {
   font-size: 1.35rem;
   margin-bottom: 0.5rem;
+  color: #2c3e50;
+  font-weight: 700;
 }
 
 .forgot-password-modal .modal-title p {
   font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0;
 }
 
 /* Pilihan metode */
-.method-card {
+.methods-container {
+  margin: 1.5rem 0;
+}
+
+.method-option {
   border-radius: 8px;
   padding: 1rem;
   border: 1px solid #dee2e6;
   transition: all 0.2s ease;
   cursor: pointer;
-  height: 100%;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  background: white;
 }
 
-.method-card:hover {
-  border-color: #0d6efd;
-  background-color: rgba(13, 110, 253, 0.05);
+.method-option:hover {
+  border-color: #2e8b57;
+  background-color: rgba(46, 139, 87, 0.05);
 }
 
-.method-card.border-primary {
-  border-width: 2px;
+.method-option.active {
+  border: 2px solid #2e8b57;
+  background-color: rgba(46, 139, 87, 0.1);
 }
 
-.method-card.border-success {
-  border-width: 2px;
+.method-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(46, 139, 87, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
 }
 
-.method-card .text-primary {
-  color: #0d6efd !important;
+.method-icon i {
+  font-size: 1.25rem;
+  color: #2e8b57;
 }
 
-.method-card .text-success {
-  color: #198754 !important;
+.method-info {
+  flex-grow: 1;
 }
 
-.method-card h6 {
+.method-info h6 {
   font-size: 0.95rem;
   margin-bottom: 0.25rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-.method-card small {
+.method-info small {
   font-size: 0.8rem;
+  color: #6c757d;
 }
 
 /* Form input */
@@ -86,24 +126,25 @@
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
+  color: #2c3e50;
 }
 
 .forgot-password-modal .form-control {
   border-radius: 6px;
   padding: 0.75rem;
   font-size: 0.9rem;
+  border: 1px solid #ced4da;
 }
 
 .forgot-password-modal .form-control:focus {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: #2e8b57;
+  box-shadow: 0 0 0 0.25rem rgba(46, 139, 87, 0.25);
 }
 
 .forgot-password-modal .form-text {
   font-size: 0.8rem;
   margin-top: 0.5rem;
+  color: #6c757d;
 }
 
 /* Alert */
@@ -120,10 +161,37 @@
   font-weight: 600;
   padding: 0.75rem;
   font-size: 0.95rem;
+  border: none;
+}
+
+.forgot-password-modal .btn-primary {
+  background-color: #2e8b57;
+  border-color: #2e8b57;
+}
+
+.forgot-password-modal .btn-primary:hover {
+  background-color: #24734a;
+  border-color: #24734a;
+}
+
+.forgot-password-modal .btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.forgot-password-modal .btn-success:hover {
+  background-color: #218838;
+  border-color: #218838;
 }
 
 .forgot-password-modal .btn-link {
   font-size: 0.9rem;
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.forgot-password-modal .btn-link:hover {
+  color: #2e8b57;
 }
 
 /* Spinner */
@@ -133,18 +201,28 @@
 }
 
 /* Success state */
-.forgot-password-modal .text-center.py-3 {
+.forgot-password-modal .success-state {
   padding: 0.5rem 0;
+  text-align: center;
 }
 
-.forgot-password-modal .text-center.py-3 h5 {
+.forgot-password-modal .success-icon {
+  font-size: 3rem;
+  color: #2e8b57;
+  margin-bottom: 1rem;
+}
+
+.forgot-password-modal .success-state h5 {
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
+  color: #2c3e50;
+  font-weight: 600;
 }
 
-.forgot-password-modal .text-center.py-3 p {
+.forgot-password-modal .success-state p {
   font-size: 0.9rem;
   margin-bottom: 1.25rem;
+  color: #6c757d;
 }
 
 /* Responsif */
@@ -157,28 +235,21 @@
     font-size: 1.25rem;
   }
   
-  .method-card {
+  .method-option {
     padding: 0.75rem;
+  }
+  
+  .method-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: 0.75rem;
+  }
+  
+  .method-icon i {
+    font-size: 1rem;
   }
   
   .forgot-password-modal .btn {
     padding: 0.65rem;
   }
-}
-
-/* Utility classes */
-.bg-primary-light {
-  background-color: rgba(13, 110, 253, 0.1) !important;
-}
-
-.bg-success-light {
-  background-color: rgba(25, 135, 84, 0.1) !important;
-}
-
-.border-gray-300 {
-  border-color: #dee2e6 !important;
-}
-
-.cursor-pointer {
-  cursor: pointer;
 }
