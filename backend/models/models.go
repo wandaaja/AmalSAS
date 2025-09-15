@@ -56,6 +56,7 @@ type Campaign struct {
 	Location       string         `json:"location" form:"location"`
 	UserID         int            `json:"user_id"`
 	User           User           `gorm:"foreignKey:UserID" json:"user"`
+	DonorCount     int            `gorm:"-" json:"donor_count"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`

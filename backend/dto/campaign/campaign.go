@@ -47,5 +47,6 @@ type CampaignResponse struct {
 	Location       string    `json:"location"`
 	UserID         int       `json:"user_id"`
 	UserName       string    `json:"user_name"`
+	DonorCount     int       `json:"donor_count"`
 	CreatedAt      time.Time `json:"created_at"`
 }

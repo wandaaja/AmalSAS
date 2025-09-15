@@ -128,6 +128,19 @@ func (r *campaignRepository) Create(campaign *models.Campaign) error {
 func (r *campaignRepository) GetAll() ([]models.Campaign, error) {
 	var campaigns []models.Campaign
 	err := r.db.Preload("User").Preload("Donations").Find(&campaigns).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Hitung donor count untuk setiap campaign
+	for i := range campaigns {
+		var donorCount int64
+		r.db.Model(&models.Donation{}).
+			Where("campaign_id = ? AND status = ?", campaigns[i].ID, "paid").
+			Distinct("user_id").
+			Count(&donorCount)
+		campaigns[i].DonorCount = int(donorCount)
+	}
 	return campaigns, err
 }
 
