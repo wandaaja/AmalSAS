@@ -22,6 +22,7 @@ func DatabaseInit() {
 	if err != nil {
 		log.Fatal("Failed to connect to database: ", err)
 	}
+	log.Printf("Migrating DB: %s", os.Getenv("DATABASE_URL"))
 
 	fmt.Println("Database connected successfully")
 }
