@@ -237,10 +237,10 @@ func (h *Handler) CreateUser(c echo.Context) error {
 
 	// Generate JWT token
 	claims := jwt.MapClaims{
-		"id":      user.ID,
-		"email":   user.Email,
-		"isAdmin": user.IsAdmin,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"id":       user.ID,
+		"email":    user.Email,
+		"is_admin": user.IsAdmin,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
 	tokenObj := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

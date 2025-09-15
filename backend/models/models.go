@@ -17,7 +17,7 @@ type User struct {
 	Email     string         `json:"email" form:"email" gorm:"unique"`
 	Password  string         `json:"-" form:"password"`
 	Photo     string         `json:"photo" form:"photo"`
-	IsAdmin   bool           `json:"isAdmin" form:"isAdmin"`
+	IsAdmin   bool           `json:"is_admin" form:"is_admin"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
@@ -37,7 +37,7 @@ type UserResponseJWT struct {
 	Address  string `json:"address" form:"address"`
 	Photo    string `json:"photo" form:"photo"`
 	Token    string `json:"token"`
-	IsAdmin  bool   `json:"isAdmin" form:"isAdmin"`
+	IsAdmin  bool   `json:"is_admin" form:"is_admin"`
 }
 
 type Campaign struct {

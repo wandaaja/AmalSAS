@@ -14,7 +14,7 @@ type SignUpRequest struct {
 	Address   string `json:"address" validate:"max=255"`     // Opsional
 	Email     string `json:"email" validate:"required,email,max=100"`
 	Password  string `json:"password" validate:"required,min=8,max=72,containsany=!@#$%^&*,containsuppercase,containsnumber"`
-	IsAdmin   bool   `json:"isAdmin"` // Default false jika donatur
+	IsAdmin   bool   `json:"is_admin"` // Default false jika donatur
 }
 
 // SignInRequest digunakan saat user login
@@ -52,7 +52,7 @@ type AuthData struct {
 	Address   string `json:"address,omitempty"`
 	Email     string `json:"email"`
 	Photo     string `json:"photo,omitempty"`
-	IsAdmin   bool   `json:"isAdmin"`
+	IsAdmin   bool   `json:"is_admin"`
 	Token     string `json:"token"`
 }
 
