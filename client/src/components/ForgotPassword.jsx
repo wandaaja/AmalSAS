@@ -12,7 +12,7 @@ export default function ForgotPasswordModal({ show, onHide, openSignIn, zIndex }
 
   const { mutate, isLoading } = useMutation({
     mutationFn: async () => {
-      const response = await API.post("/auth/forgot-password", { email, Whatsapp });
+      const response = await API.post("/auth/forgot-password", { email });
       return response.data;
     },
     onSuccess: () => {
