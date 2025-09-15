@@ -63,7 +63,7 @@ export default function Navbar() {
 
 
   const [state, dispatch] = useContext(UserContext);
-  const isAdmin = state.user?.is_admin;
+  const is_admin = state.user?.is_admin;
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -220,7 +220,7 @@ export default function Navbar() {
 
   // Filter keyword results berdasarkan role user
   const filteredKeywords = keywordResults.filter(keyword => {
-    if (keyword.adminOnly && !isAdmin) return false;
+    if (keyword.adminOnly && !is_admin) return false;
     return true;
   });
 
@@ -251,7 +251,7 @@ export default function Navbar() {
           <Link to="/" className="navbar-brand-text" onClick={() => setActiveModal(null)}>AmalSAS.id</Link>
         </div>
 
-        {!isAdmin && (
+        {!is_admin && (
           <form className="navbar-search" onSubmit={handleSearch}>
             <input
               type="text"
@@ -270,7 +270,7 @@ export default function Navbar() {
 
           {state.isLogin ? (
             <>
-              {isAdmin ? (
+              {is_admin ? (
                 <>
                   <Link to="/admin/dashboard" className="nav-link">Dashboard</Link>
                   <Link to="/admin/campaigns/add" className="nav-link add-campaign-button">Add Campaign</Link>
@@ -304,7 +304,7 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="mobile-menu">
-            {!isAdmin && (
+            {!is_admin && (
               <form className="mobile-search" onSubmit={handleSearch}>
                 <input
                   type="text"
@@ -322,7 +322,7 @@ export default function Navbar() {
 
             {state.isLogin ? (
               <>
-                {isAdmin ? (
+                {is_admin ? (
                   <>
                     <Link to="/admin/dashboard" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
                     <Link to="/admin/campaigns/add" className="mobile-link add-campaign-button" onClick={() => setIsMenuOpen(false)}>Add Campaign</Link>

@@ -18,7 +18,7 @@ const userReducer = (state, action) => {
         isLogin: true,
         user: {
           ...payload,
-          isAdmin: payload.is_admin,
+          is_admin: payload.is_admin,
         },
       };
 

@@ -12,7 +12,7 @@ export default function MyDonations() {
   const [selectedCampaign, setSelectedCampaign] = useState("");
   const [campaigns, setCampaigns] = useState([]);
   const [filteredDonations, setFilteredDonations] = useState([]);
-  const isAdmin = state.user?.is_admin;
+  const is_admin = state.user?.is_admin;
 
   useEffect(() => {
     document.body.style.background = "rgba(196, 196, 196, 0.25)";
@@ -33,7 +33,7 @@ export default function MyDonations() {
         return [];
       }
     },
-    enabled: isAdmin, // Hanya fetch jika admin
+    enabled: is_admin, // Hanya fetch jika admin
   });
 
   useEffect(() => {
@@ -49,10 +49,10 @@ export default function MyDonations() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["donations", state.user?.id, isAdmin],
+    queryKey: ["donations", state.user?.id, is_admin],
     queryFn: async () => {
       try {
-        if (isAdmin) {
+        if (is_admin) {
           // Admin: ambil semua donations
           const res = await API.get("/donations");
           return res.data.data || [];
@@ -155,10 +155,10 @@ export default function MyDonations() {
     <Container className="my-5 donation-container">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="donation-title">
-          {isAdmin ? "All Donations Management" : "My Donation History"}
+          {is_admin ? "All Donations Management" : "My Donation History"}
         </h3>
         
-        {isAdmin && campaigns.length > 0 && (
+        {is_admin && campaigns.length > 0 && (
           <div className="d-flex align-items-center gap-2">
             <Form.Select
               value={selectedCampaign}
@@ -195,19 +195,19 @@ export default function MyDonations() {
         <thead>
           <tr>
             <th>No</th>
-            {isAdmin && <th>Donor</th>}
+            {is_admin && <th>Donor</th>}
             <th>Campaign</th>
             <th>Amount</th>
             <th>Date</th>
             <th>Status</th>
             <th>Payment Method</th>
-            {isAdmin && <th>Order ID</th>}
+            {is_admin && <th>Order ID</th>}
           </tr>
         </thead>
         <tbody>
           {isLoading ? (
             <tr>
-              <td colSpan={isAdmin ? 8 : 6} className="text-center py-4">
+              <td colSpan={is_admin ? 8 : 6} className="text-center py-4">
                 <div className="spinner-border spinner-border-sm me-2" />
                 Loading donations...
               </td>
@@ -216,7 +216,7 @@ export default function MyDonations() {
             displayDonations.map((donation, index) => (
               <tr key={donation.id || index} className="donation-row">
                 <td>{index + 1}</td>
-                {isAdmin && (
+                {is_admin && (
                   <td>
                     <div>
                       <strong>
@@ -252,7 +252,7 @@ export default function MyDonations() {
                    donation.payment_type || 
                    (donation.status_payment === "pending" ? "Midtrans" : "-")}
                 </td>
-                {isAdmin && (
+                {is_admin && (
                   <td>
                     <small className="text-muted">
                       {donation.order_id || donation.id || "-"}
@@ -263,21 +263,21 @@ export default function MyDonations() {
             ))
           ) : (
             <tr>
-              <td colSpan={isAdmin ? 8 : 6} className="text-center py-5 empty-state">
+              <td colSpan={is_admin ? 8 : 6} className="text-center py-5 empty-state">
                 <div className="mb-3">
                   <i className="fas fa-donate fa-3x text-muted" />
                 </div>
                 <div className="fw-bold mb-2">
                   {selectedCampaign 
                     ? "No donations found for this campaign" 
-                    : isAdmin 
+                    : is_admin 
                       ? "No donations available" 
                       : "No donation history found"}
                 </div>
                 <div className="text-muted small">
                   {selectedCampaign 
                     ? "Try selecting a different campaign or clear the filter" 
-                    : isAdmin
+                    : is_admin
                       ? "Donations will appear here once users make contributions"
                       : "Your donations will appear here once you make a contribution"}
                 </div>
@@ -298,7 +298,7 @@ export default function MyDonations() {
       </Table>
 
       {/* Summary untuk Admin */}
-      {isAdmin && displayDonations.length > 0 && (
+      {is_admin && displayDonations.length > 0 && (
         <div className="mt-4 p-3 bg-light rounded">
           <h6>Donation Summary:</h6>
           <div className="d-flex gap-4">

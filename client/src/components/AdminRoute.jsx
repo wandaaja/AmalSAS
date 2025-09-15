@@ -6,7 +6,7 @@ const AdminRoute = () => {
   const [state] = useContext(UserContext);
 
   if (!state.isLogin) return <Navigate to="/" />;
-  if (!state.user.isAdmin) return <Navigate to="/profile" />;
+  if (!state.user.is_admin) return <Navigate to="/profile" />;
 
   return <Outlet />;
 };
