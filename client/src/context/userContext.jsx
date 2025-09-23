@@ -17,8 +17,16 @@ const userReducer = (state, action) => {
       return {
         isLogin: true,
         user: {
-          ...payload,
-          is_admin: payload.is_admin,
+          id: payload.id || payload.ID,
+      name: payload.name || `${payload.first_name} ${payload.last_name}`,
+      email: payload.email,
+      username: payload.username,
+      gender: payload.gender,
+      phone: payload.phone,
+      address: payload.address,
+      photo: payload.photo,
+      is_admin: payload.is_admin,
+      token: payload.token,
         },
       };
 
