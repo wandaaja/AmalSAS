@@ -652,6 +652,7 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 			Message: "Invalid request body",
 		})
 	}
+	fmt.Println("req", req)
 
 	// Update hanya jika field tidak kosong
 	if req.FirstName != "" {
@@ -687,7 +688,7 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 			Message: "Failed to update user",
 		})
 	}
-
+	fmt.Println(user, "s")
 	return c.JSON(http.StatusOK, dto.SuccessResult{
 		Code: http.StatusOK,
 		Data: user,
