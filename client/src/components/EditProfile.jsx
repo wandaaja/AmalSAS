@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
 import { UserContext } from "../context/userContext";
 import { API } from "../config/api";
@@ -12,25 +12,27 @@ export default function EditProfile({ show, onHide }) {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
+    username: "",
     email: "",
     phone: "",
     address: "",
-    gender: ""
+    gender: "",
   });
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showChangeImage, setShowChangeImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize form with user data when modal shows
-  React.useEffect(() => {
+  // Set form data saat modal dibuka
+  useEffect(() => {
     if (show && state.user) {
       setForm({
         first_name: state.user.first_name || state.user.name?.split(" ")[0] || "",
         last_name: state.user.last_name || state.user.name?.split(" ")[1] || "",
+        username: state.user.username || "",
         email: state.user.email || "",
         phone: state.user.phone || "",
         address: state.user.address || "",
-        gender: state.user.gender || ""
+        gender: state.user.gender || "",
       });
     }
   }, [show, state.user]);
@@ -42,44 +44,48 @@ export default function EditProfile({ show, onHide }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      };
 
-      if (!state.user?.id) {
-        alert("User ID not found");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Token not found, please login again.");
         return;
       }
 
-      const body = JSON.stringify(form);
-      const response = await API.put(`/users/${state.user.id}`, body, config);
+      if (!state.user?.id) {
+        alert("User ID not found.");
+        return;
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await API.put(`/users/${state.user.id}`, form, config);
 
       dispatch({
         type: "USER_SUCCESS",
-        payload: response.data.data
+        payload: response.data.data,
       });
 
       alert("Profile updated successfully!");
       onHide();
     } catch (err) {
-      console.error("Update error:", err);
-      alert("Failed to update profile");
+      console.error("Update error:", err.response || err.message);
+      alert(err.response?.data?.message || "Failed to update profile");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
     <div className="edit-profile-modal">
-      <Modal 
-        show={show} 
-        onHide={onHide} 
+      <Modal
+        show={show}
+        onHide={onHide}
         centered
         backdrop="static"
         keyboard={false}
@@ -127,7 +133,6 @@ export default function EditProfile({ show, onHide }) {
                     onChange={handleChange}
                   />
                 </Form.Group>
-
 
                 <Form.Group className="mb-3 form-group">
                   <Form.Label>Email</Form.Label>
@@ -182,7 +187,7 @@ export default function EditProfile({ show, onHide }) {
                   >
                     Change Photo
                   </Button>
-                  
+
                   <Button
                     variant="outline-secondary"
                     onClick={() => setShowChangePassword(true)}
@@ -204,16 +209,15 @@ export default function EditProfile({ show, onHide }) {
         </Modal.Body>
       </Modal>
 
-      <ChangePassword 
-        show={showChangePassword} 
-        onHide={() => setShowChangePassword(false)} 
+      <ChangePassword
+        show={showChangePassword}
+        onHide={() => setShowChangePassword(false)}
       />
-      
-      <ChangeImageModal 
-        show={showChangeImage} 
-        onHide={() => setShowChangeImage(false)} 
+
+      <ChangeImageModal
+        show={showChangeImage}
+        onHide={() => setShowChangeImage(false)}
       />
     </div>
-    </>
   );
 }
