@@ -44,14 +44,20 @@ export default function EditProfile({ show, onHide }) {
     try {
       const config = {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       };
+
+      if (!state.user?.id) {
+        alert("User ID not found");
+        return;
+      }
 
       const body = JSON.stringify(form);
       console.log("User state:", state.user);
 console.log("ID yang dipakai:", state.user?.id);
-      const response = await API.put(`/users/${form.id}`, body, config);
+      const response = await API.put(`/users/${state.user.id}`, body, config);
       console.log(response,"dd")
 
       dispatch({

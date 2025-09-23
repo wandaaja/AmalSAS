@@ -65,6 +65,7 @@ type UpdateUserRequest struct {
 	Address   string `json:"address"`
 	Email     string `json:"email"`
 	Photo     string `json:"photo"`
+	Name      string `json:"name"`
 }
 
 // AuthResponse digunakan untuk response setelah login atau signup

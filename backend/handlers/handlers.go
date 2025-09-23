@@ -644,7 +644,6 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 		})
 	}
 
-	// Gunakan DTO untuk request
 	var req dtoAuth.UpdateUserRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
@@ -652,9 +651,21 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 			Message: "Invalid request body",
 		})
 	}
-	fmt.Println("req", req)
+	fmt.Println("Received request:", req)
 
-	// Update hanya jika field tidak kosong
+	// Handle name field - jika frontend mengirim name sebagai full name
+	if req.Name != "" {
+		// Split name menjadi first_name dan last_name
+		names := strings.Split(req.Name, " ")
+		if len(names) > 0 {
+			user.FirstName = names[0]
+		}
+		if len(names) > 1 {
+			user.LastName = strings.Join(names[1:], " ")
+		}
+	}
+
+	// Update field lainnya (jika dikirim terpisah)
 	if req.FirstName != "" {
 		user.FirstName = req.FirstName
 	}
@@ -685,10 +696,11 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 	if err := h.userRepository.Update(user); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
 			Code:    http.StatusInternalServerError,
-			Message: "Failed to update user",
+			Message: "Failed to update user: " + err.Error(),
 		})
 	}
-	fmt.Println(user, "s")
+
+	fmt.Println("Updated user:", user)
 	return c.JSON(http.StatusOK, dto.SuccessResult{
 		Code: http.StatusOK,
 		Data: user,
