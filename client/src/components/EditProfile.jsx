@@ -10,7 +10,8 @@ export default function EditProfile({ show, onHide }) {
   const [state, dispatch] = useContext(UserContext);
   const [activeTab, setActiveTab] = useState("profile");
   const [form, setForm] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     phone: "",
     address: "",
@@ -24,7 +25,8 @@ export default function EditProfile({ show, onHide }) {
   React.useEffect(() => {
     if (show && state.user) {
       setForm({
-        name: state.user.name || "",
+        first_name: state.user.first_name || state.user.name?.split(" ")[0] || "",
+        last_name: state.user.last_name || state.user.name?.split(" ")[1] || "",
         email: state.user.email || "",
         phone: state.user.phone || "",
         address: state.user.address || "",
@@ -99,15 +101,36 @@ console.log("ID yang dipakai:", state.user?.id);
             <Tab eventKey="profile" title="Profile Info">
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3 form-group">
-                  <Form.Label>Full Name</Form.Label>
+                  <Form.Label>First Name</Form.Label>
                   <Form.Control
                     type="text"
-                    name="name"
-                    value={form.name}
+                    name="first_name"
+                    value={form.first_name}
                     onChange={handleChange}
                     required
                   />
                 </Form.Group>
+
+                <Form.Group className="mb-3 form-group">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="last_name"
+                    value={form.last_name}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3 form-group">
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="username"
+                    value={form.username}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
 
                 <Form.Group className="mb-3 form-group">
                   <Form.Label>Email</Form.Label>
