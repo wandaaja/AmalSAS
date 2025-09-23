@@ -1,28 +1,11 @@
-.edit-profile-modal .modal-dialog {
-  max-width: 600px;
-  width: 90%;
-  background-color: #fff;
-}
-
-.edit-profile-modal .modal-content {
-  max-width: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.edit-profile-modal .modal-body {
-  overflow-y: auto;
-  flex: 1;
-  padding: 1rem 1.5rem 1.5rem;
+.edit-profile-modal {
   
-}
-
-.edit-profile-modal .modal-footer,
-.edit-profile-modal .submit-button {
-  position: sticky;
-  bottom: 0;
-  background: #fff;
-  padding-top: 1rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  margin: 0;
+  background-color: #fff;
 }
 
 .modal-header {
@@ -36,6 +19,10 @@
   color: #2e8b57;
   text-align: center;
   width: 100%;
+}
+
+.modal-body {
+  padding: 1rem 1.5rem 1.5rem;
 }
 
 .profile-tabs .nav-link {

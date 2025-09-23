@@ -49,7 +49,7 @@ export default function EditProfile({ show, onHide }) {
       };
 
       const body = JSON.stringify(form);
-      const response = await API.patch("/users", body, config);
+      const response = await API.put("/users", body, config);
 
       dispatch({
         type: "USER_SUCCESS",
