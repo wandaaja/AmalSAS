@@ -49,7 +49,7 @@ export default function EditProfile({ show, onHide }) {
       };
 
       const body = JSON.stringify(form);
-      const response = await API.put('/users/${id}', body, config);
+      const response = await API.put(`/users/${state.user.id}`, body, config);
       console.log(response,"dd")
 
       dispatch({
