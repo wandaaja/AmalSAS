@@ -56,6 +56,17 @@ type AuthData struct {
 	Token     string `json:"token"`
 }
 
+type UpdateUserRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Username  string `json:"username"`
+	Gender    string `json:"gender"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+	Email     string `json:"email"`
+	Photo     string `json:"photo"`
+}
+
 // AuthResponse digunakan untuk response setelah login atau signup
 func NewAuthResponse(message string, authData AuthData) BaseResponse {
 	return BaseResponse{
