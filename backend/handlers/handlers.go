@@ -652,6 +652,7 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 			Message: "Invalid request body",
 		})
 	}
+	println(req, "req")
 
 	// Update hanya jika field tidak kosong
 	if req.FirstName != "" {
