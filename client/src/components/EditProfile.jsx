@@ -51,7 +51,7 @@ export default function EditProfile({ show, onHide }) {
       const body = JSON.stringify(form);
       console.log("User state:", state.user);
 console.log("ID yang dipakai:", state.user?.id);
-      const response = await API.put(`/users/${state.user.id}`, body, config);
+      const response = await API.put(`/users/${form.id}`, body, config);
       console.log(response,"dd")
 
       dispatch({
