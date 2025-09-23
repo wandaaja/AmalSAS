@@ -637,7 +637,6 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 			Message: "Failed to get user",
 		})
 	}
-
 	if user == nil {
 		return c.JSON(http.StatusNotFound, dto.ErrorResult{
 			Code:    http.StatusNotFound,
@@ -645,11 +644,39 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 		})
 	}
 
-	if err := c.Bind(user); err != nil {
+	// Gunakan DTO untuk request
+	var req dtoAuth.UpdateUserRequest
+	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
 			Code:    http.StatusBadRequest,
 			Message: "Invalid request body",
 		})
+	}
+
+	// Update hanya jika field tidak kosong
+	if req.FirstName != "" {
+		user.FirstName = req.FirstName
+	}
+	if req.LastName != "" {
+		user.LastName = req.LastName
+	}
+	if req.Username != "" {
+		user.Username = req.Username
+	}
+	if req.Gender != "" {
+		user.Gender = req.Gender
+	}
+	if req.Phone != "" {
+		user.Phone = req.Phone
+	}
+	if req.Address != "" {
+		user.Address = req.Address
+	}
+	if req.Email != "" {
+		user.Email = req.Email
+	}
+	if req.Photo != "" {
+		user.Photo = req.Photo
 	}
 
 	user.UpdatedAt = time.Now()
