@@ -6,8 +6,8 @@ import SignUpModal from "./SignUp";
 import { UserContext } from "../context/userContext";
 import { setAuthToken } from "../config/api";
 import { API } from "../config/api";
-import "./Navbar.css"
-import ResetPasswordModal from "./ResetPassword";
+import "./NavbarStyle.css"
+
 const navbarPages = [
   {
     id: 'home',
@@ -363,11 +363,6 @@ export default function Navbar() {
       />
       <SignUpModal
         show={activeModal === 'signup'}
-        onHide={() => setActiveModal(null)}
-        openSignIn={() => setActiveModal('signin')}
-      />
-      <ResetPasswordModal
-        show={activeModal === 'reset-pass'}
         onHide={() => setActiveModal(null)}
         openSignIn={() => setActiveModal('signin')}
       />
