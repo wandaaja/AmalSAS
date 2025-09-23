@@ -1,5 +1,5 @@
 .edit-profile-modal {
-  overflow-y: auto;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -8,11 +8,17 @@
   background-color: #fff;
 }
 
-.modal-header {
-  border-bottom: circle;
+/* Header modal */
+.edit-profile-modal .modal-header {
+  border-bottom: 1px solid #e9ecef;
   padding: 2rem 2rem 0;
+  position: sticky; /* biar header tetap terlihat saat scroll */
+  top: 0;
+  background: #fff;
+  z-index: 10;
 }
 
+/* Judul modal */
 .modal-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -21,11 +27,14 @@
   width: 100%;
 }
 
-.modal-body {
+/* Body modal, bisa discroll */
+.edit-profile-modal .modal-body {
+  max-height: 70vh;   /* modal body maksimal 70% tinggi layar */
+  overflow-y: auto;   /* aktifkan scroll */
   padding: 1rem 1.5rem 1.5rem;
-
 }
 
+/* Tabs */
 .profile-tabs .nav-link {
   color: #495057;
   font-weight: 500;
@@ -39,6 +48,7 @@
   background-color: transparent;
 }
 
+/* Form */
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -49,7 +59,8 @@
   margin-bottom: 0.5rem;
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
   background-color: #f8f9fa;
   border: 2px solid #e9ecef;
   border-radius: 8px;
@@ -57,12 +68,14 @@
   transition: all 0.3s;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   background-color: #fff;
   border-color: #2e8b57;
   box-shadow: 0 0 0 0.25rem rgba(46, 139, 87, 0.25);
 }
 
+/* Tombol submit */
 .submit-button {
   background-color: #2e8b57;
   border: none;
@@ -85,4 +98,11 @@
 .submit-button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+
+/* Mobile-friendly: modal lebih full screen */
+@media (max-width: 576px) {
+  .edit-profile-modal .modal-body {
+    max-height: 80vh; /* di hp lebih lega */
+  }
 }
