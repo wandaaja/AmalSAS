@@ -192,7 +192,7 @@ func (r *campaignRepository) GetAll() ([]models.Campaign, error) {
 	for i := range campaigns {
 		var donorCount int64
 		r.db.Model(&models.Donation{}).
-			Where("campaign_id = ? AND status = ?", campaigns[i].ID, "paid").
+			Where("campaign_id = ? AND status = ?", campaigns[i].ID, "success").
 			Distinct("user_id").
 			Count(&donorCount)
 		campaigns[i].DonorCount = int(donorCount)
