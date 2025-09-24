@@ -169,7 +169,7 @@ func (h *Handler) ForgotPassword(c echo.Context) error {
 }
 
 func (h *Handler) sendResetEmailFallback(email, token string) {
-	resetLink := fmt.Sprintf("https://yourdomain.com/reset-password?token=%s", token)
+	resetLink := fmt.Sprintf("https://amalsas-production.up.railway.app/api/v1/reset-password?token=%s", token)
 	fmt.Printf("=== EMAIL RESET PASSWORD (SIMULASI) ===\n")
 	fmt.Printf("Kepada: %s\n", email)
 	fmt.Printf("Link Reset: %s\n", resetLink)
@@ -177,7 +177,7 @@ func (h *Handler) sendResetEmailFallback(email, token string) {
 }
 
 func (h *Handler) sendResetWhatsAppFallback(whatsapp, token string) {
-	resetLink := fmt.Sprintf("https://yourdomain.com/reset-password?token=%s", token)
+	resetLink := fmt.Sprintf("https://amalsas-production.up.railway.app/api/v1/reset-password?token=%s", token)
 	message := fmt.Sprintf("Halo! Untuk reset password, klik: %s", resetLink)
 	fmt.Printf("=== WHATSAPP MESSAGE (SIMULASI) ===\n")
 	fmt.Printf("Kepada: %s\n", whatsapp)

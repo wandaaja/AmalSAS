@@ -101,3 +101,8 @@ type ForgotPasswordRequest struct {
 	Whatsapp string `json:"whatsapp,omitempty" validate:"omitempty,e164"`
 	Method   string `json:"method" validate:"required,oneof=email whatsapp"`
 }
+
+type ResetPasswordRequest struct {
+	Token       string `json:"token" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,min=8"`
+}

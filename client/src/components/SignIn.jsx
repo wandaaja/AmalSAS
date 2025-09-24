@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { useMutation } from "@tanstack/react-query";
 import { API } from "../config/api";
-import ForgotPasswordModal from "./ForgotPassword";
+// import ForgotPasswordModal from "./ForgotPassword";
 
 export default function SignInModal({ show, onHide, openSignUp }) {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -102,7 +102,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
               marginBottom: '1rem'
             }}>
               <Form.Check type="checkbox" label="Ingat Saya" />
-              <button
+              {/* <button
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
                 style={{
@@ -115,7 +115,7 @@ export default function SignInModal({ show, onHide, openSignUp }) {
                 }}
               >
                 Lupa Password?
-              </button>
+              </button> */}
             </div>
 
             <Button type="submit" className="w-100 mb-3">
@@ -147,13 +147,13 @@ export default function SignInModal({ show, onHide, openSignUp }) {
       </Modal>
     )}
 
-    <ForgotPasswordModal
+    {/* <ForgotPasswordModal
       show={showForgotPassword}
       onHide={() => setShowForgotPassword(false)}
       openSignIn={() => {
         setShowForgotPassword(false);
       }}
-    />
+    /> */}
   </>
 );
 
