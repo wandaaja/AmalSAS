@@ -32,8 +32,14 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	// Services
 	paymentService := services.NewPaymentService()
 
+	emailService := services.NewEmailService()
+
+	whatsappService := services.NewWhatsAppService()
+
 	// Handlers
-	handler := handlers.NewHandler(userRepo, campaignRepo, donationRepo, paymentService, passwordRepo)
+	handler := handlers.NewHandler(userRepo, campaignRepo, donationRepo, paymentService, passwordRepo,
+		emailService,
+		whatsappService)
 
 	// API Routes
 	api := e.Group("/api/v1")

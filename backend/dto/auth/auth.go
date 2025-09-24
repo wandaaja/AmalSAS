@@ -95,3 +95,9 @@ func MessageResponse(message string) BaseResponse {
 		Timestamp: time.Now(),
 	}
 }
+
+type ForgotPasswordRequest struct {
+	Email    string `json:"email,omitempty" validate:"omitempty,email"`
+	Whatsapp string `json:"whatsapp,omitempty" validate:"omitempty,e164"`
+	Method   string `json:"method" validate:"required,oneof=email whatsapp"`
+}

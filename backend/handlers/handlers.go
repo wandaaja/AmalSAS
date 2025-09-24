@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"fmt"
 	"log"
 	"math/rand"
@@ -30,6 +31,8 @@ type Handler struct {
 	donationRepository repositories.DonationRepository
 	paymentService     services.PaymentService
 	passwordRepository repositories.PasswordResetRepository
+	emailService       *services.EmailService
+	whatsappService    *services.WhatsAppService
 }
 
 func NewHandler(
@@ -38,6 +41,8 @@ func NewHandler(
 	donationRepo repositories.DonationRepository,
 	paymentService services.PaymentService,
 	passwordRepo repositories.PasswordResetRepository,
+	emailService *services.EmailService,
+	whatsappService *services.WhatsAppService,
 ) *Handler {
 	return &Handler{
 		userRepository:     userRepo,
@@ -45,146 +50,189 @@ func NewHandler(
 		donationRepository: donationRepo,
 		paymentService:     paymentService,
 		passwordRepository: passwordRepo,
+		emailService:       emailService,
+		whatsappService:    whatsappService,
 	}
 }
 
 // ========= password handle =======
-type ForgotPasswordRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Whatsapp string `json:"whatsapp,omitempty"` // Opsional
-}
-type ResetPasswordRequest struct {
-	Token       string `json:"token" validate:"required"`
-	NewPassword string `json:"new_password" validate:"required,min=8"`
-}
 
 // Generate random token
 func generateResetToken() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, 32)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		return fmt.Sprintf("%d", time.Now().UnixNano())
 	}
-	return string(b)
+	return hex.EncodeToString(bytes)
 }
 
 func (h *Handler) ForgotPassword(c echo.Context) error {
-	var req ForgotPasswordRequest
+	var req dtoAuth.ForgotPasswordRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request format",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Format request tidak valid",
+		))
 	}
 
-	// Validasi email
-	if req.Email == "" {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Email is required",
-		})
+	// Validasi berdasarkan method yang dipilih
+	if req.Method == "email" && req.Email == "" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Email harus diisi untuk metode email",
+		))
 	}
 
-	// Cek apakah user dengan email tersebut ada
-	user, err := h.userRepository.GetByEmail(req.Email)
+	if req.Method == "whatsapp" && req.Whatsapp == "" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Nomor WhatsApp harus diisi untuk metode WhatsApp",
+		))
+	}
+
+	// Tentukan contact yang akan digunakan
+	var contact string
+	var user *models.User
+	var err error
+
+	if req.Method == "email" {
+		contact = req.Email
+		user, err = h.userRepository.GetByEmail(req.Email)
+	} else {
+		contact = req.Whatsapp
+		user, err = h.userRepository.GetByPhone(req.Whatsapp)
+	}
+
+	// Untuk keamanan, selalu return success meskipun user tidak ditemukan
 	if err != nil || user == nil {
-		// Untuk keamanan, jangan beri tahu jika email tidak ditemukan
-		return c.JSON(http.StatusOK, dto.SuccessResult{
-			Code: http.StatusOK,
-			Data: "If the email exists, a reset link has been sent",
+		return c.JSON(http.StatusOK, dto.BaseResponse{
+			Success:   true,
+			Message:   "Jika email/nomor terdaftar, tautan reset telah dikirim",
+			Timestamp: time.Now(),
 		})
 	}
 
 	// Generate reset token
 	token := generateResetToken()
-	expiresAt := time.Now().Add(1 * time.Hour) // Token berlaku 1 jam
+	expiresAt := time.Now().Add(1 * time.Hour)
 
 	// Simpan token ke database
 	resetRecord := &models.PasswordReset{
-		Email:     req.Email,
+		Email:     user.Email, // Simpan email user untuk referensi
 		Token:     token,
 		ExpiresAt: expiresAt,
 		Used:      false,
 	}
 
 	if err := h.passwordRepository.Create(resetRecord); err != nil {
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to create reset token",
-		})
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse(
+			http.StatusInternalServerError, "Gagal membuat token reset",
+		))
 	}
 
-	// TODO: Implementasi pengiriman email
-	resetLink := fmt.Sprintf("https://yourdomain.com/reset-password?token=%s", token)
+	// Kirim token berdasarkan method
+	var channel string
+	var sendError error
 
-	// Kirim via Email (implementasi nyata akan menggunakan service email)
-	fmt.Printf("Reset link for %s: %s\n", req.Email, resetLink)
-
-	// Kirim via WhatsApp jika provided (implementasi nyata akan menggunakan API WhatsApp)
-	if req.Whatsapp != "" {
-		whatsappMessage := fmt.Sprintf("Halo! Untuk reset password Anda, silakan klik link berikut: %s", resetLink)
-		fmt.Printf("WhatsApp message to %s: %s\n", req.Whatsapp, whatsappMessage)
+	if req.Method == "email" {
+		channel = "email"
+		// Kirim email
+		if h.emailService != nil {
+			sendError = h.emailService.SendResetEmail(req.Email, token)
+		} else {
+			// Fallback ke console log
+			h.sendResetEmailFallback(req.Email, token)
+		}
+	} else {
+		channel = "whatsapp"
+		// Kirim WhatsApp
+		if h.whatsappService != nil {
+			sendError = h.whatsappService.SendResetMessage(req.Whatsapp, token)
+		} else {
+			// Fallback ke console log
+			h.sendResetWhatsAppFallback(req.Whatsapp, token)
+		}
 	}
 
-	return c.JSON(http.StatusOK, dto.SuccessResult{
-		Code: http.StatusOK,
+	if sendError != nil {
+		// Log error internal
+		fmt.Printf("Gagal mengirim %s: %v\n", channel, sendError)
+	}
+
+	return c.JSON(http.StatusOK, dto.BaseResponse{
+		Success: true,
+		Message: "Instruksi reset telah dikirim",
 		Data: map[string]interface{}{
-			"message": "Reset instructions sent successfully",
-			"channel": "email", // atau "whatsapp" jika dikirim via WhatsApp
+			"channel": channel,
+			"contact": contact,
+			"message": "Tautan reset telah dikirim",
 		},
+		Timestamp: time.Now(),
 	})
 }
 
+func (h *Handler) sendResetEmailFallback(email, token string) {
+	resetLink := fmt.Sprintf("https://yourdomain.com/reset-password?token=%s", token)
+	fmt.Printf("=== EMAIL RESET PASSWORD (SIMULASI) ===\n")
+	fmt.Printf("Kepada: %s\n", email)
+	fmt.Printf("Link Reset: %s\n", resetLink)
+	fmt.Printf("=======================================\n")
+}
+
+func (h *Handler) sendResetWhatsAppFallback(whatsapp, token string) {
+	resetLink := fmt.Sprintf("https://yourdomain.com/reset-password?token=%s", token)
+	message := fmt.Sprintf("Halo! Untuk reset password, klik: %s", resetLink)
+	fmt.Printf("=== WHATSAPP MESSAGE (SIMULASI) ===\n")
+	fmt.Printf("Kepada: %s\n", whatsapp)
+	fmt.Printf("Pesan: %s\n", message)
+	fmt.Printf("====================================\n")
+}
+
 func (h *Handler) ResetPassword(c echo.Context) error {
-	var req ResetPasswordRequest
+	var req struct {
+		Token       string `json:"token" validate:"required"`
+		NewPassword string `json:"new_password" validate:"required,min=8"`
+	}
+
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request format",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Format request tidak valid",
+		))
 	}
 
 	// Validasi token
 	resetRecord, err := h.passwordRepository.GetByToken(req.Token)
 	if err != nil || resetRecord == nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid or expired reset token",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Token reset tidak valid atau sudah kadaluarsa",
+		))
 	}
 
 	// Cek apakah token sudah digunakan
 	if resetRecord.Used {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Reset token has already been used",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Token reset sudah digunakan",
+		))
 	}
 
 	// Cek apakah token sudah expired
 	if time.Now().After(resetRecord.ExpiresAt) {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Reset token has expired",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Token reset sudah kadaluarsa",
+		))
 	}
 
 	// Cari user berdasarkan email
 	user, err := h.userRepository.GetByEmail(resetRecord.Email)
 	if err != nil || user == nil {
-		return c.JSON(http.StatusNotFound, dto.ErrorResult{
-			Code:    http.StatusNotFound,
-			Message: "User not found",
-		})
+		return c.JSON(http.StatusNotFound, dto.ErrorResponse(
+			http.StatusNotFound, "User tidak ditemukan",
+		))
 	}
 
 	// Hash password baru
 	hashedPassword, err := bcrypt.HashingPassword(req.NewPassword)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
-			Code:    http.StatusInternalServerError,
-			Message: "Error hashing password",
-		})
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse(
+			http.StatusInternalServerError, "Error saat hashing password",
+		))
 	}
 
 	// Update password user
@@ -192,21 +240,20 @@ func (h *Handler) ResetPassword(c echo.Context) error {
 	user.UpdatedAt = time.Now()
 
 	if err := h.userRepository.Update(user); err != nil {
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to update password",
-		})
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse(
+			http.StatusInternalServerError, "Gagal update password",
+		))
 	}
 
 	// Tandai token sebagai sudah digunakan
 	if err := h.passwordRepository.MarkAsUsed(req.Token); err != nil {
-		// Log error tapi jangan return error ke client karena password sudah diupdate
-		fmt.Printf("Failed to mark token as used: %v\n", err)
+		fmt.Printf("Gagal menandai token sebagai used: %v\n", err)
 	}
 
-	return c.JSON(http.StatusOK, dto.SuccessResult{
-		Code: http.StatusOK,
-		Data: "Password reset successfully",
+	return c.JSON(http.StatusOK, dto.BaseResponse{
+		Success:   true,
+		Message:   "Password berhasil direset",
+		Timestamp: time.Now(),
 	})
 }
 
@@ -214,27 +261,26 @@ func (h *Handler) ResetPassword(c echo.Context) error {
 func (h *Handler) VerifyResetToken(c echo.Context) error {
 	token := c.QueryParam("token")
 	if token == "" {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Token is required",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Token harus diisi",
+		))
 	}
 
 	resetRecord, err := h.passwordRepository.GetByToken(token)
 	if err != nil || resetRecord == nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResult{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid or expired reset token",
-		})
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse(
+			http.StatusBadRequest, "Token reset tidak valid atau sudah kadaluarsa",
+		))
 	}
 
-	return c.JSON(http.StatusOK, dto.SuccessResult{
-		Code: http.StatusOK,
+	return c.JSON(http.StatusOK, dto.BaseResponse{
+		Success: true,
 		Data: map[string]interface{}{
 			"valid":      true,
 			"email":      resetRecord.Email,
 			"expires_at": resetRecord.ExpiresAt,
 		},
+		Timestamp: time.Now(),
 	})
 }
 
