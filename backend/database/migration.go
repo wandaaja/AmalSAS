@@ -11,6 +11,7 @@ func RunMigration() {
 		&models.User{},
 		&models.Campaign{},
 		&models.Donation{},
+		&models.PasswordReset{},
 	)
 	if err != nil {
 		fmt.Println("❌ Migration failed:", err)
